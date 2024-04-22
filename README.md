@@ -1,1 +1,2 @@
-# EcommerceApp
+# PlayMoney(플레이모네)
+- 영상 스트리밍 서비스 기반 정산 시스템 구현
