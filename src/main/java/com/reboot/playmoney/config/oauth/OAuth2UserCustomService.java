@@ -42,7 +42,7 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
                         .email(email)
                         .username(name)
                         .socialProvider(SocialProvider.GOOGLE)
-                        .userType(UserType.USER)
+                        .userType(UserType.SELLER)
                         .build());
 
         return userRepository.save(user);
