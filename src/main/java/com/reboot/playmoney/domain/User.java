@@ -51,7 +51,6 @@ public class User implements UserDetails {
 
     public User update(String username) {
         this.username = username;
-
         return this;
     }
 
