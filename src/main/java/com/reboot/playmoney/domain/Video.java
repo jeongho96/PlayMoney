@@ -41,6 +41,7 @@ public class Video {
     @Column(name = "duration")
     private int duration;
 
+    @Builder
     public Video(String title, String content, LocalDateTime createdAt, int viewCount, int duration, Long memberId) {
         this.title = title;
         this.content = content;
