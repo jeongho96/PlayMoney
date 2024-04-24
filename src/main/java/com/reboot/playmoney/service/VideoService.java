@@ -50,7 +50,7 @@ public class VideoService {
     }
 
     @Transactional
-    public Video update(long id, UpdateVideoRequest request) {
+    public void update(long id, UpdateVideoRequest request) {
         Video video = videoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("not found : " + id));
 
@@ -58,10 +58,13 @@ public class VideoService {
                 .orElseThrow(() -> new IllegalArgumentException("not found user_id : " + video.getMemberId()));
 
         authorizeArticleAuthor(user);
-        video.update(request.getTitle(), request.getContent());
+        video.update(request.getTitle(), request.getContent(), request.getDuration());
 
-        return video;
+        // 영상의 조회수를 업데이트
+        videoRepository.save(video);
     }
+
+
 
     // 게시글을 작성한 유저인지 확인
     private static void authorizeArticleAuthor(User user) {

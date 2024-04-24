@@ -16,6 +16,7 @@ public class VideoViewResponse {
   private String content;
   private LocalDateTime createdAt;
   private int duration;
+  private int viewCount;
 
 
   public VideoViewResponse(Video video) {
@@ -25,5 +26,6 @@ public class VideoViewResponse {
     this.content = video.getContent();
     this.createdAt = video.getCreatedAt();
     this.duration = video.getDuration();
+    this.viewCount = video.getViewCount();
   }
 }

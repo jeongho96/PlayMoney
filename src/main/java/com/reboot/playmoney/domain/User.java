@@ -18,6 +18,7 @@ import java.util.List;
 @Entity
 public class User implements UserDetails {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id", updatable = false)
@@ -30,7 +31,7 @@ public class User implements UserDetails {
     private String password;
 
     @Column(name = "username", unique = true)
-    private String username;
+    private String name;
 
     @Column(name = "social_provider")
     @Enumerated(EnumType.STRING)
@@ -40,17 +41,18 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserType userType; // 추가된 부분
 
+
     @Builder
     public User(String email, String password, String username, SocialProvider socialProvider, UserType userType) {
         this.email = email;
         this.password = password;
-        this.username = username;
+        this.name = username;
         this.socialProvider = socialProvider;
         this.userType = userType;
     }
 
     public User update(String username) {
-        this.username = username;
+        this.name = username;
         return this;
     }
 
@@ -89,5 +91,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", socialProvider=" + socialProvider +
+                ", userType=" + userType +
+                '}';
     }
 }

@@ -3,18 +3,18 @@ const deleteButton = document.getElementById('delete-btn');
 
 if (deleteButton) {
     deleteButton.addEventListener('click', event => {
-        let id = document.getElementById('article-id').value;
+        let id = document.getElementById('video-id').value;
         function success() {
             alert('삭제가 완료되었습니다.');
-            location.replace('/articles');
+            location.replace('/videos');
         }
 
         function fail() {
             alert('삭제 실패했습니다.');
-            location.replace('/articles');
+            location.replace('/videos');
         }
 
-        httpRequest('DELETE',`/api/articles/${id}`, null, success, fail);
+        httpRequest('DELETE',`/api/videos/${id}`, null, success, fail);
     });
 }
 
@@ -33,15 +33,15 @@ if (modifyButton) {
 
         function success() {
             alert('수정 완료되었습니다.');
-            location.replace(`/articles/${id}`);
+            location.replace(`/videos/${id}`);
         }
 
         function fail() {
             alert('수정 실패했습니다.');
-            location.replace(`/articles/${id}`);
+            location.replace(`/videos/${id}`);
         }
 
-        httpRequest('PUT',`/api/articles/${id}`, body, success, fail);
+        httpRequest('PUT',`/api/videos/${id}`, body, success, fail);
     });
 }
 
@@ -57,14 +57,14 @@ if (createButton) {
         });
         function success() {
             alert('등록 완료되었습니다.');
-            location.replace('/articles');
+            location.replace('/videos');
         };
         function fail() {
             alert('등록 실패했습니다.');
-            location.replace('/articles');
+            location.replace('/videos');
         };
 
-        httpRequest('POST','/api/articles', body, success, fail)
+        httpRequest('POST','/api/videos', body, success, fail)
     });
 }
 

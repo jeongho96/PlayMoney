@@ -1,10 +1,7 @@
 package com.reboot.playmoney.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -31,10 +28,12 @@ public class Video {
     private String content;
 
     @CreatedDate
-    @Column(name = "upload_date")
+    @Column(name = "upload_date", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @Column(name = "view_count")
+    @Setter
     private int viewCount;
 
     @Column(name = "duration")
@@ -50,8 +49,9 @@ public class Video {
         this.memberId = memberId;
     }
 
-    public void update(String title, String content) {
+    public void update(String title, String content, int viewCount) {
         this.title = title;
         this.content = content;
+        this.duration = viewCount;
     }
 }
