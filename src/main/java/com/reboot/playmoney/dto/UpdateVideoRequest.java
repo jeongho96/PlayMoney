@@ -10,4 +10,6 @@ import lombok.NoArgsConstructor;
 public class UpdateVideoRequest {
     private String title;
     private String content;
+    private int duration;
+    private int viewCount;
 }
