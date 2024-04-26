@@ -43,6 +43,19 @@ public class WatchHistoryService {
             viewStatsRepository.save(viewStats);
         }
 
+        // 광고 조회수 증가 로직
+        int adCount = totalPlayTime / 300;
+        if (adCount > watchHistory.getAdCount()) {
+            // 추후에 TotalAdViewCount와 TotalViewCount는 스케줄러를 활용해서 누적해야될 수도 있음.(실시간 반영이 어렵다면)
+            video.setTotalAdViewCount(video.getTotalAdViewCount() + 1);
+            watchHistory.setAdCount(adCount);
+
+            ViewStats viewStats = viewStatsRepository.findByVideo_IdAndCreatedAt(video.getId(), LocalDate.now())
+                    .orElse(new ViewStats(video, 0, 0));
+            viewStats.setAdViewCount(viewStats.getAdViewCount() + 1);
+            viewStatsRepository.save(viewStats);
+        }
+
         // 최근 시청 지점은 그 전 시청 시간.
         // 누적 시청 시간(최근 시청 지점 + 이후 시청 시간)이 동영상 길이를 넘어가면 0으로 초기화.
         if (watchHistory.getPlayTime() + playTime > video.getDuration()) {

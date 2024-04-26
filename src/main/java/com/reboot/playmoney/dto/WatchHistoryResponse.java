@@ -15,14 +15,12 @@ public class WatchHistoryResponse {
     private Long id;
     private UserDto user;
     private VideoDto video;
-    private LocalDateTime playDate;
     private int playTime;
 
     public WatchHistoryResponse(WatchHistory watchHistory) {
         id = watchHistory.getId();
         user = new UserDto(watchHistory.getUser());
         video = new VideoDto(watchHistory.getVideo());
-        playDate = watchHistory.getPlayDate();
         playTime = watchHistory.getPlayTime();
     }
 }

@@ -28,26 +28,25 @@ public class WatchHistory {
     @JoinColumn(name = "video_id")
     private Video video;
 
-    @LastModifiedDate
-    @Column(name = "play_date", nullable = false)
-    private LocalDateTime playDate;
-
 
     @Column(name = "play_time", nullable = false)
     @Setter private int playTime;
+
+    // 광고수 중복을 피하기 위한 카운트.
+    @Column(name = "ad_count")
+    @Setter
+    private int adCount;
 
     @Builder
     public WatchHistory(User user , Video video, int playTime) {
         this.user = user;
         this.video = video;
-        this.playDate = LocalDateTime.now();
         this.playTime = playTime;
     }
 
     public void update(User user, Video video, int playTime) {
         this.user = user;
         this.video = video;
-        this.playDate = LocalDateTime.now();
         this.playTime = playTime;
     }
 

@@ -39,6 +39,7 @@ public class Video {
     private int totalViewCount;
 
     @Column(name = "total_ad_view_count")
+    @Setter
     private int totalAdViewCount;
 
     @Column(name = "duration")
