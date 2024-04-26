@@ -14,6 +14,7 @@ public class AddVideoRequest {
     private String title;
     private String content;
     private int viewCount;
+    private Long memberId;
     private int duration;
 
     public Video toEntity(Long memberId) {
