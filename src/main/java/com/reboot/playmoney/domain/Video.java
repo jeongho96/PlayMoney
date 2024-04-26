@@ -34,26 +34,30 @@ public class Video {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @Column(name = "view_count")
+    @Column(name = "total_view_count")
     @Setter
-    private int viewCount;
+    private int totalViewCount;
+
+    @Column(name = "total_ad_view_count")
+    private int totalAdViewCount;
 
     @Column(name = "duration")
     private int duration;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", insertable = false, updatable = false)
+    @JoinColumn(name = "member_id" ,updatable = false)
     private User user;
 
     @OneToMany(mappedBy = "video")
     private List<WatchHistory> watchHistories = new ArrayList<>();
 
     @Builder
-    public Video(String title, String content, LocalDateTime createdAt, int viewCount, int duration, User user) {
+    public Video(String title, String content, LocalDateTime createdAt, int totalViewCount, int totalAdViewCount, int duration, User user) {
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
-        this.viewCount = viewCount;
+        this.totalViewCount = totalViewCount;
+        this.totalAdViewCount = totalAdViewCount;
         this.duration = duration;
         this.user = user;
     }

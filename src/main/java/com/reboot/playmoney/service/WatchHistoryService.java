@@ -2,15 +2,18 @@ package com.reboot.playmoney.service;
 
 import com.reboot.playmoney.domain.User;
 import com.reboot.playmoney.domain.Video;
+import com.reboot.playmoney.domain.ViewStats;
 import com.reboot.playmoney.domain.WatchHistory;
 import com.reboot.playmoney.dto.WatchHistoryResponse;
-import com.reboot.playmoney.repository.UserRepository;
 import com.reboot.playmoney.repository.VideoRepository;
+import com.reboot.playmoney.repository.ViewStatsRepository;
 import com.reboot.playmoney.repository.WatchHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class WatchHistoryService {
 
     private final WatchHistoryRepository watchHistoryRepository;
     private final VideoRepository videoRepository;
+    private final ViewStatsRepository viewStatsRepository;
 
 
     @Transactional
@@ -28,10 +32,15 @@ public class WatchHistoryService {
 
         int totalPlayTime = playTime + watchHistory.getPlayTime();
 
-        // 누적시청시간이 영상 길이보다는 짧고, 영상을 30초 시청하거나,
+        // 누적시청시간이 영상 길이보다는 짧고, 영상을 100초 시청하거나,
         // 영상을 끝까지 보는 경우 조회수가 상승.
-        if (((playTime >= 30) && (totalPlayTime < video.getDuration())) || (totalPlayTime > video.getDuration())) {
-            video.setViewCount(video.getViewCount() + 1);
+        if (((playTime >= 100) && (totalPlayTime < video.getDuration())) || (totalPlayTime > video.getDuration())) {
+            video.setTotalViewCount(video.getTotalViewCount() + 1);
+
+            ViewStats viewStats = viewStatsRepository.findByVideo_IdAndCreatedAt(video.getId(), LocalDate.now())
+                    .orElse(new ViewStats(video, 0, 0));
+            viewStats.setViewCount(viewStats.getViewCount() + 1);
+            viewStatsRepository.save(viewStats);
         }
 
         // 최근 시청 지점은 그 전 시청 시간.

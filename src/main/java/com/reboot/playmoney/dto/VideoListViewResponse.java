@@ -21,7 +21,7 @@ public class VideoListViewResponse {
         this.title = video.getTitle();
         this.content = video.getContent();
         this.createdAt = video.getCreatedAt();
-        this.viewCount = video.getViewCount();
+        this.viewCount = video.getTotalViewCount();
         this.duration = video.getDuration();
     }
 }

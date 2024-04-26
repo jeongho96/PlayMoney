@@ -14,14 +14,16 @@ public class AddVideoRequest {
 
     private String title;
     private String content;
-    private int viewCount;
+    private int totalViewCount;
+    private int totalAdViewCount;
     private int duration;
 
     public Video toEntity(User user) {
         return Video.builder()
                 .title(title)
                 .content(content)
-                .viewCount(viewCount)
+                .totalViewCount(totalViewCount)
+                .totalAdViewCount(totalAdViewCount)
                 .duration(duration)
                 .user(user)
                 .build();

@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,10 @@ public class VideoService {
     private final VideoRepository videoRepository;
     private final UserRepository userRepository;
 
-    public Video save(AddVideoRequest request, User user) {
+    public Video save(AddVideoRequest request, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         return videoRepository.save(request.toEntity(user));
     }
 
