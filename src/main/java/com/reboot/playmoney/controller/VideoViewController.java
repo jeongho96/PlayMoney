@@ -38,7 +38,7 @@ public class VideoViewController {
     public String getVideo(@PathVariable Long id, Model model) {
         Video video = videoService.findById(id);
         // 비디오 업로더의 정보 가져오기.
-        User user = userService.findById(video.getMemberId());
+        User user = video.getUser();
 
         System.out.println("user 이메일 : " + user.getName());
 
