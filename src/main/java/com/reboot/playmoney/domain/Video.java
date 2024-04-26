@@ -6,11 +6,14 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
+@Table
 public class Video {
 
     @Id
@@ -18,8 +21,7 @@ public class Video {
     @Column(name = "video_id", updatable = false)
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -32,21 +34,33 @@ public class Video {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @Column(name = "view_count")
+    @Column(name = "total_view_count")
     @Setter
-    private int viewCount;
+    private int totalViewCount;
+
+    @Column(name = "total_ad_view_count")
+    @Setter
+    private int totalAdViewCount;
 
     @Column(name = "duration")
     private int duration;
 
+    @ManyToOne
+    @JoinColumn(name = "member_id" ,updatable = false)
+    private User user;
+
+    @OneToMany(mappedBy = "video")
+    private List<WatchHistory> watchHistories = new ArrayList<>();
+
     @Builder
-    public Video(String title, String content, LocalDateTime createdAt, int viewCount, int duration, Long memberId) {
+    public Video(String title, String content, LocalDateTime createdAt, int totalViewCount, int totalAdViewCount, int duration, User user) {
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
-        this.viewCount = viewCount;
+        this.totalViewCount = totalViewCount;
+        this.totalAdViewCount = totalAdViewCount;
         this.duration = duration;
-        this.memberId = memberId;
+        this.user = user;
     }
 
     public void update(String title, String content, int viewCount) {

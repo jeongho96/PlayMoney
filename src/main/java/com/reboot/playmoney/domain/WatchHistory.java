@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "watchHistory")
+@Table(name = "watch_history")
 @Getter
 @Entity
 public class WatchHistory {
@@ -20,32 +20,33 @@ public class WatchHistory {
     @Column(name = "watch_id")
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private User user;
 
-    @Column(name = "video_id", nullable = false)
-    private Long videoId;
-
-    @LastModifiedDate
-    @Column(name = "play_date", nullable = false)
-    private LocalDateTime playDate;
+    @ManyToOne
+    @JoinColumn(name = "video_id")
+    private Video video;
 
 
     @Column(name = "play_time", nullable = false)
     @Setter private int playTime;
 
+    // 광고수 중복을 피하기 위한 카운트.
+    @Column(name = "ad_count")
+    @Setter
+    private int adCount;
+
     @Builder
-    public WatchHistory(Long memberId, Long videoId, int lastWatch, int playTime) {
-        this.memberId = memberId;
-        this.videoId = videoId;
-        this.playDate = LocalDateTime.now();
+    public WatchHistory(User user , Video video, int playTime) {
+        this.user = user;
+        this.video = video;
         this.playTime = playTime;
     }
 
-    public void update(Long memberId, Long videoId, int playTime) {
-        this.memberId = memberId;
-        this.videoId = videoId;
-        this.playDate = LocalDateTime.now();
+    public void update(User user, Video video, int playTime) {
+        this.user = user;
+        this.video = video;
         this.playTime = playTime;
     }
 

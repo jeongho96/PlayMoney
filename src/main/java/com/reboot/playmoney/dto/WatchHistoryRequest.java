@@ -21,11 +21,11 @@ public class WatchHistoryRequest {
     @Setter private int playTime;
 
 
-    public WatchHistory toEntity(Long memberId) {
-        return WatchHistory.builder()
-                .memberId(memberId)
-                .videoId(videoId)
-                .playTime(playTime)
-                .build();
-    }
+//    public WatchHistory toEntity(Long memberId) {
+//        return WatchHistory.builder()
+//
+//                .videoId(videoId)
+//                .playTime(playTime)
+//                .build();
+//    }
 }
