@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "watchHistory")
+@Table(name = "watch_history")
 @Getter
 @Entity
 public class WatchHistory {
@@ -20,11 +20,13 @@ public class WatchHistory {
     @Column(name = "watch_id")
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private User user;
 
-    @Column(name = "video_id", nullable = false)
-    private Long videoId;
+    @ManyToOne
+    @JoinColumn(name = "video_id")
+    private Video video;
 
     @LastModifiedDate
     @Column(name = "play_date", nullable = false)
@@ -35,16 +37,16 @@ public class WatchHistory {
     @Setter private int playTime;
 
     @Builder
-    public WatchHistory(Long memberId, Long videoId, int lastWatch, int playTime) {
-        this.memberId = memberId;
-        this.videoId = videoId;
+    public WatchHistory(User user , Video video, int playTime) {
+        this.user = user;
+        this.video = video;
         this.playDate = LocalDateTime.now();
         this.playTime = playTime;
     }
 
-    public void update(Long memberId, Long videoId, int playTime) {
-        this.memberId = memberId;
-        this.videoId = videoId;
+    public void update(User user, Video video, int playTime) {
+        this.user = user;
+        this.video = video;
         this.playDate = LocalDateTime.now();
         this.playTime = playTime;
     }

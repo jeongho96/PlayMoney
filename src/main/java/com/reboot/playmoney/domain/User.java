@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,6 +42,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserType userType; // 추가된 부분
 
+
+    @OneToMany(mappedBy = "user")
+    private List<WatchHistory> watchHistories = new ArrayList<>();
 
     @Builder
     public User(String email, String password, String username, SocialProvider socialProvider, UserType userType) {
