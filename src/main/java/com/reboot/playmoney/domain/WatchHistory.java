@@ -3,49 +3,47 @@ package com.reboot.playmoney.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "watchHistory")
+@Table(name = "watch_history")
 @Getter
 @Entity
 public class WatchHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "watch_id")
-    private Long id;
+    @Column(name = "watch_number")
+    private Long watchNumber;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name = "member_number")
+    private Member member;
 
-    @Column(name = "video_id", nullable = false)
-    private Long videoId;
-
-    @LastModifiedDate
-    @Column(name = "play_date", nullable = false)
-    private LocalDateTime playDate;
+    @ManyToOne
+    @JoinColumn(name = "video_number")
+    private Video video;
 
 
     @Column(name = "play_time", nullable = false)
     @Setter private int playTime;
 
+    // 광고수 중복을 피하기 위한 카운트.
+    @Column(name = "ad_count")
+    @Setter
+    private int adCount;
+
     @Builder
-    public WatchHistory(Long memberId, Long videoId, int lastWatch, int playTime) {
-        this.memberId = memberId;
-        this.videoId = videoId;
-        this.playDate = LocalDateTime.now();
+    public WatchHistory(Member member, Video video, int playTime) {
+        this.member = member;
+        this.video = video;
         this.playTime = playTime;
     }
 
-    public void update(Long memberId, Long videoId, int playTime) {
-        this.memberId = memberId;
-        this.videoId = videoId;
-        this.playDate = LocalDateTime.now();
+    public void update(Member member, Video video, int playTime) {
+        this.member = member;
+        this.video = video;
         this.playTime = playTime;
     }
 

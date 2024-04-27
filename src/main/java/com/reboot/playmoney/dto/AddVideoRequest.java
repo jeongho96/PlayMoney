@@ -1,5 +1,6 @@
 package com.reboot.playmoney.dto;
 
+import com.reboot.playmoney.domain.Member;
 import com.reboot.playmoney.domain.Video;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,15 +14,16 @@ public class AddVideoRequest {
 
     private String title;
     private String content;
-    private int viewCount;
-    private Long memberId;
+    private int totalViewCount;
     private int duration;
 
-    public Video toEntity(Long memberId) {
+    public Video toEntity(Member member) {
         return Video.builder()
                 .title(title)
                 .content(content)
-                .memberId(memberId)
+                .totalViewCount(totalViewCount)
+                .duration(duration)
+                .member(member)
                 .build();
     }
 }

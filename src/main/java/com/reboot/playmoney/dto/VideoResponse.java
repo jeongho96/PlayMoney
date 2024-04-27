@@ -10,13 +10,15 @@ public class VideoResponse {
     private final String title;
     private final String content;
     private final int duration;
-    private final int viewCount;
+    private final int totalViewCount;
+    private final String uploader;
 
 
     public VideoResponse(Video video) {
         this.title = video.getTitle();
         this.content = video.getContent();
         this.duration = video.getDuration();
-        this.viewCount = video.getViewCount();
+        this.totalViewCount = video.getTotalViewCount();
+        this.uploader = video.getMember().getEmail();
     }
 }

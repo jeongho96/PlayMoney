@@ -1,5 +1,6 @@
 package com.reboot.playmoney.dto;
 
+import com.reboot.playmoney.domain.Member;
 import com.reboot.playmoney.domain.Video;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 public class VideoViewResponse {
 
   private Long id;
-  private Long memberId;
+  private Member member;
   private String title;
   private String content;
   private LocalDateTime createdAt;
@@ -20,12 +21,12 @@ public class VideoViewResponse {
 
 
   public VideoViewResponse(Video video) {
-    this.id = video.getId();
-    this.memberId = video.getMemberId();
+    this.id = video.getVideoNumber();
+    this.member = video.getMember();
     this.title = video.getTitle();
     this.content = video.getContent();
     this.createdAt = video.getCreatedAt();
     this.duration = video.getDuration();
-    this.viewCount = video.getViewCount();
+    this.viewCount = video.getTotalViewCount();
   }
 }

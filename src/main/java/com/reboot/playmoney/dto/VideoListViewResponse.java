@@ -17,11 +17,11 @@ public class VideoListViewResponse {
     private final int duration;
 
     public VideoListViewResponse(Video video) {
-        this.id = video.getId();
+        this.id = video.getVideoNumber();
         this.title = video.getTitle();
         this.content = video.getContent();
         this.createdAt = video.getCreatedAt();
-        this.viewCount = video.getViewCount();
+        this.viewCount = video.getTotalViewCount();
         this.duration = video.getDuration();
     }
 }

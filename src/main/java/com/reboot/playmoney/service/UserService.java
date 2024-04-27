@@ -1,6 +1,6 @@
 package com.reboot.playmoney.service;
 
-import com.reboot.playmoney.domain.User;
+import com.reboot.playmoney.domain.Member;
 import com.reboot.playmoney.dto.AddUserRequest;
 import com.reboot.playmoney.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +16,18 @@ public class UserService {
     public Long save(AddUserRequest dto) {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-        return userRepository.save(User.builder()
+        return userRepository.save(Member.builder()
                 .email(dto.getEmail())
                 .password(encoder.encode(dto.getPassword()))
-                .build()).getId();
+                .build()).getMemberNumber();
     }
 
-    public User findById(Long userId) {
+    public Member findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Unexpected user"));
     }
 
-    public User findByEmail(String email) {
+    public Member findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Unexpected user"));
     }

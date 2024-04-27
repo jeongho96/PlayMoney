@@ -6,20 +6,25 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
+@Table(name = "video")
 public class Video {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "video_id", updatable = false)
-    private Long id;
+    @Column(name = "video_number", updatable = false)
+    private Long videoNumber;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @ManyToOne
+    @JoinColumn(name = "member_number" ,updatable = false)
+    private Member member;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -28,25 +33,32 @@ public class Video {
     private String content;
 
     @CreatedDate
-    @Column(name = "upload_date", updatable = false)
+    @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @Column(name = "view_count")
+    @Column(name = "total_view_count")
     @Setter
-    private int viewCount;
+    private int totalViewCount;
+
 
     @Column(name = "duration")
     private int duration;
 
+    @OneToMany(mappedBy = "video")
+    private List<Advertisement> advertisements = new ArrayList<>();
+
+    @OneToMany(mappedBy = "video")
+    private List<WatchHistory> watchHistories = new ArrayList<>();
+
     @Builder
-    public Video(String title, String content, LocalDateTime createdAt, int viewCount, int duration, Long memberId) {
+    public Video(String title, String content, LocalDateTime createdAt, int totalViewCount, int duration, Member member) {
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
-        this.viewCount = viewCount;
+        this.totalViewCount = totalViewCount;
         this.duration = duration;
-        this.memberId = memberId;
+        this.member = member;
     }
 
     public void update(String title, String content, int viewCount) {
@@ -54,4 +66,15 @@ public class Video {
         this.content = content;
         this.duration = viewCount;
     }
+
+    public void increaseTotalViewCount() {
+        this.totalViewCount++;
+    }
+
+    public Advertisement getAdvertisement() {
+        return this.advertisements.stream()
+                .min(Comparator.comparingInt(Advertisement::getPriority))
+                .orElse(null);
+    }
+
 }

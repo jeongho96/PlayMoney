@@ -5,10 +5,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,13 +19,14 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class User implements UserDetails {
+@EntityListeners(AuditingEntityListener.class)
+public class Member implements UserDetails {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id", updatable = false)
-    private Long id;
+    @Column(name = "member_number", updatable = false)
+    private Long memberNumber;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -41,17 +45,24 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserType userType; // 추가된 부분
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "member")
+    private List<WatchHistory> watchHistories = new ArrayList<>();
 
     @Builder
-    public User(String email, String password, String username, SocialProvider socialProvider, UserType userType) {
+    public Member(String email, String password, String username, SocialProvider socialProvider, UserType userType) {
         this.email = email;
         this.password = password;
         this.name = username;
         this.socialProvider = socialProvider;
         this.userType = userType;
+        this.createdAt = LocalDateTime.now();
     }
 
-    public User update(String username) {
+    public Member update(String username) {
         this.name = username;
         return this;
     }
@@ -97,7 +108,7 @@ public class User implements UserDetails {
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
+                "memberNumber=" + memberNumber +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
