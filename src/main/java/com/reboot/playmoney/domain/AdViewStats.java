@@ -7,7 +7,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 
 @EntityListeners(AuditingEntityListener.class)
@@ -15,30 +14,39 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "view_stats")
-public class ViewStats {
+@Table(name = "ad_view_stats")
+public class AdViewStats {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "view_number")
     private Long viewId;
 
     @ManyToOne
-    @JoinColumn(name = "video_id")
-    private Video video;
+    @JoinColumn(name = "ad_number")
+    private Advertisement ad;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.DATE)
     private LocalDate createdAt;
 
-    private int viewCount;
+
+
+    @Column(name = "ad_view_count")
     private int adViewCount;
 
     @Builder
-    public ViewStats(Video video,  int viewCount, int adViewCount) {
-        this.video = video;
+    public AdViewStats(Advertisement ad, int adViewCount) {
+        this.ad = ad;
         this.createdAt = LocalDate.now();
-        this.viewCount = viewCount;
         this.adViewCount = adViewCount;
+
+
     }
+
+    public void increaseAdViewCount() {
+        this.adViewCount++;
+    }
+
 
 }

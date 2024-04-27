@@ -1,7 +1,7 @@
 package com.reboot.playmoney.service;
 
 import com.reboot.playmoney.config.jwt.TokenProvider;
-import com.reboot.playmoney.domain.User;
+import com.reboot.playmoney.domain.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +21,10 @@ public class TokenService {
             throw new IllegalArgumentException("Unexpected token");
         }
 
-        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getUserId();
-        User user = userService.findById(userId);
+        Long userId = refreshTokenService.findByRefreshToken(refreshToken).getMemberNumber();
+        Member member = userService.findById(userId);
 
-        return tokenProvider.generateToken(user, Duration.ofHours(2));
+        return tokenProvider.generateToken(member, Duration.ofHours(2));
     }
 }
 

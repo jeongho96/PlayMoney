@@ -2,7 +2,7 @@ package com.reboot.playmoney.config.oauth;
 
 import com.reboot.playmoney.config.jwt.TokenProvider;
 import com.reboot.playmoney.domain.RefreshToken;
-import com.reboot.playmoney.domain.User;
+import com.reboot.playmoney.domain.Member;
 import com.reboot.playmoney.repository.RefreshTokenRepository;
 import com.reboot.playmoney.service.UserService;
 import com.reboot.playmoney.util.CookieUtil;
@@ -35,13 +35,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        User user = userService.findByEmail((String) oAuth2User.getAttributes().get("email"));
+        Member member = userService.findByEmail((String) oAuth2User.getAttributes().get("email"));
 
-        String refreshToken = tokenProvider.generateToken(user, REFRESH_TOKEN_DURATION);
-        saveRefreshToken(user.getId(), refreshToken);
+        String refreshToken = tokenProvider.generateToken(member, REFRESH_TOKEN_DURATION);
+        saveRefreshToken(member.getMemberNumber(), refreshToken);
         addRefreshTokenToCookie(request, response, refreshToken);
 
-        String accessToken = tokenProvider.generateToken(user, ACCESS_TOKEN_DURATION);
+        String accessToken = tokenProvider.generateToken(member, ACCESS_TOKEN_DURATION);
         String targetUrl = getTargetUrl(accessToken);
 
         clearAuthenticationAttributes(request, response);
@@ -50,7 +50,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private void saveRefreshToken(Long userId, String newRefreshToken) {
-        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
+        RefreshToken refreshToken = refreshTokenRepository.findByMemberNumber(userId)
                 .map(entity -> entity.update(newRefreshToken))
                 .orElse(new RefreshToken(userId, newRefreshToken));
 

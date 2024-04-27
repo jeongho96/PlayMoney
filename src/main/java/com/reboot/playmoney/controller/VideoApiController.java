@@ -1,6 +1,6 @@
 package com.reboot.playmoney.controller;
 
-import com.reboot.playmoney.domain.User;
+import com.reboot.playmoney.domain.Member;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.dto.*;
 import com.reboot.playmoney.service.UserService;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -29,9 +28,9 @@ public class VideoApiController {
     @PostMapping("/play")
     public ResponseEntity<WatchHistoryResponse> playVideo(Principal principal, @RequestBody PlayRequest playRequest) {
         log.info("비디오 재생 : {}", principal.getName());
-        User user = userService.findByEmail(principal.getName());
+        Member member = userService.findByEmail(principal.getName());
         Video video = videoService.findById(playRequest.getVideoId());
-        WatchHistoryResponse historyDto = watchHistoryService.playVideo(user, video, playRequest.getPlayTime());
+        WatchHistoryResponse historyDto = watchHistoryService.playVideo(member, video, playRequest.getPlayTime());
         return ResponseEntity.ok(historyDto);
     }
 

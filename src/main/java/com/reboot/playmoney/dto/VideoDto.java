@@ -11,7 +11,7 @@ public class VideoDto {
     private String title;
 
     public VideoDto(Video video) {
-        this.id = video.getId();
+        this.id = video.getVideoNumber();
         this.title = video.getTitle();
     }
 
