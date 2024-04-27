@@ -3,10 +3,7 @@ package com.reboot.playmoney.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,15 +14,15 @@ public class WatchHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "watch_id")
-    private Long id;
+    @Column(name = "watch_number")
+    private Long watchNumber;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private User user;
+    @JoinColumn(name = "member_number")
+    private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "video_id")
+    @JoinColumn(name = "video_number")
     private Video video;
 
 
@@ -38,14 +35,14 @@ public class WatchHistory {
     private int adCount;
 
     @Builder
-    public WatchHistory(User user , Video video, int playTime) {
-        this.user = user;
+    public WatchHistory(Member member, Video video, int playTime) {
+        this.member = member;
         this.video = video;
         this.playTime = playTime;
     }
 
-    public void update(User user, Video video, int playTime) {
-        this.user = user;
+    public void update(Member member, Video video, int playTime) {
+        this.member = member;
         this.video = video;
         this.playTime = playTime;
     }
