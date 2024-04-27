@@ -1,12 +1,8 @@
 package com.reboot.playmoney.dto;
 
 
-import com.reboot.playmoney.domain.User;
-import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.WatchHistory;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 public class WatchHistoryResponse {
@@ -18,8 +14,8 @@ public class WatchHistoryResponse {
     private int playTime;
 
     public WatchHistoryResponse(WatchHistory watchHistory) {
-        id = watchHistory.getId();
-        user = new UserDto(watchHistory.getUser());
+        id = watchHistory.getWatchNumber();
+        user = new UserDto(watchHistory.getMember());
         video = new VideoDto(watchHistory.getVideo());
         playTime = watchHistory.getPlayTime();
     }

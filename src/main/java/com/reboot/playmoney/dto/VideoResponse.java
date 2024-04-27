@@ -11,7 +11,6 @@ public class VideoResponse {
     private final String content;
     private final int duration;
     private final int totalViewCount;
-    private final int totalAdViewCount;
     private final String uploader;
 
 
@@ -20,7 +19,6 @@ public class VideoResponse {
         this.content = video.getContent();
         this.duration = video.getDuration();
         this.totalViewCount = video.getTotalViewCount();
-        this.totalAdViewCount = video.getTotalAdViewCount();
-        this.uploader = video.getUser().getEmail();
+        this.uploader = video.getMember().getEmail();
     }
 }

@@ -1,6 +1,6 @@
 package com.reboot.playmoney.controller;
 
-import com.reboot.playmoney.domain.User;
+import com.reboot.playmoney.domain.Member;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.dto.VideoListViewResponse;
 import com.reboot.playmoney.dto.VideoViewResponse;
@@ -38,12 +38,12 @@ public class VideoViewController {
     public String getVideo(@PathVariable Long id, Model model) {
         Video video = videoService.findById(id);
         // 비디오 업로더의 정보 가져오기.
-        User user = video.getUser();
+        Member member = video.getMember();
 
-        System.out.println("user 이메일 : " + user.getName());
+        System.out.println("user 이메일 : " + member.getName());
 
         model.addAttribute("video", new VideoViewResponse(video));
-        model.addAttribute("userName", user.getName());
+        model.addAttribute("userName", member.getName());
 
         return "videoPage";
     }

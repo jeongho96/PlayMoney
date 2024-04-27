@@ -1,7 +1,7 @@
 package com.reboot.playmoney.config.oauth;
 
+import com.reboot.playmoney.domain.Member;
 import com.reboot.playmoney.domain.SocialProvider;
-import com.reboot.playmoney.domain.User;
 import com.reboot.playmoney.domain.UserType;
 import com.reboot.playmoney.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,22 +28,22 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
     }
 
     // ❷ 유저가 있으면 업데이트, 없으면 유저 생성
-    private User saveOrUpdate(OAuth2User oAuth2User) {
+    private Member saveOrUpdate(OAuth2User oAuth2User) {
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         String email = (String) attributes.get("email");
         String name = (String) attributes.get("name");
 
-        User user = userRepository.findByEmail(email)
+        Member member = userRepository.findByEmail(email)
                 .map(entity -> entity.update(name))
-                .orElse(User.builder()
+                .orElse(Member.builder()
                         .email(email)
                         .username(name)
                         .socialProvider(SocialProvider.GOOGLE)
                         .userType(UserType.SELLER)
                         .build());
 
-        return userRepository.save(user);
+        return userRepository.save(member);
     }
 }
 
