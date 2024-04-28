@@ -2,6 +2,7 @@ package com.reboot.playmoney.domain;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "advertisement")
 @Getter
@@ -36,6 +38,14 @@ public class Advertisement {
 
     @Column(nullable = false)
     private int priority;
+
+    public Advertisement(Video video, LocalDateTime now, int priority) {
+        this.video = video;
+        this.totalAdViewCount = 0;
+        this.createdAt = now;
+        this.priority = priority;
+
+    }
 
     public void increaseTotalAdViewCount() {
         this.totalAdViewCount++;
