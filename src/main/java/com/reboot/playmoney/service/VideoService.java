@@ -35,6 +35,8 @@ public class VideoService {
         return videoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("not found : " + id));
     }
+
+
 //
 //    @Transactional
 //    public void delete(long id) {
@@ -62,17 +64,14 @@ public class VideoService {
 //        // 영상의 조회수를 업데이트
 //        videoRepository.save(video);
 //    }
-
-
-
-    // 게시글을 작성한 유저인지 확인
-    private static void authorizeArticleAuthor(Member member) {
-        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        if (!member.getUsername().equals(userName)) {
-            throw new IllegalArgumentException("not authorized");
-        }
-    }
+//    // 게시글을 작성한 유저인지 확인
+//    private static void authorizeArticleAuthor(Member member) {
+//        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+//
+//        if (!member.getUsername().equals(userName)) {
+//            throw new IllegalArgumentException("not authorized");
+//        }
+//    }
 
 
 }

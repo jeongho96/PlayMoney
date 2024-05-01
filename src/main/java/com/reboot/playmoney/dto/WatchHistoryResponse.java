@@ -9,13 +9,13 @@ public class WatchHistoryResponse {
 
 
     private Long id;
-    private UserDto user;
+    private UserDto member;
     private VideoDto video;
     private int playTime;
 
     public WatchHistoryResponse(WatchHistory watchHistory) {
         id = watchHistory.getWatchNumber();
-        user = new UserDto(watchHistory.getMember());
+        member = new UserDto(watchHistory.getMember());
         video = new VideoDto(watchHistory.getVideo());
         playTime = watchHistory.getPlayTime();
     }

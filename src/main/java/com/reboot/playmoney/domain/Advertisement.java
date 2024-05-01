@@ -47,6 +47,14 @@ public class Advertisement {
 
     }
 
+    public Advertisement(Video video,int totalAdViewCount, LocalDateTime now, int priority) {
+        this.video = video;
+        this.totalAdViewCount = totalAdViewCount;
+        this.createdAt = now;
+        this.priority = priority;
+
+    }
+
     public void increaseTotalAdViewCount() {
         this.totalAdViewCount++;
     }

@@ -66,25 +66,8 @@ public class VideoApiController {
         return ResponseEntity.ok()
                 .body(new VideoResponse(video));
     }
-//
-//    @DeleteMapping("/video/{id}")
-//    public ResponseEntity<Void> deleteVideo(@PathVariable long id) {
-//        videoService.delete(id);
-//
-//        return ResponseEntity.ok()
-//                .build();
-//    }
-//
-//    @PutMapping("/video/{id}")
-//    public ResponseEntity<Video> updateVideo(@PathVariable long id,
-//                                             @RequestBody UpdateVideoRequest request) {
-//        videoService.update(id, request);
-//
-//        Video updatedVideo = videoService.findById(id);
-//
-//        return ResponseEntity.ok()
-//                .body(updatedVideo);
-//    }
+
+
 
 }
 

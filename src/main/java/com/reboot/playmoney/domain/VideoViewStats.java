@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 
 @EntityListeners(AuditingEntityListener.class)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
