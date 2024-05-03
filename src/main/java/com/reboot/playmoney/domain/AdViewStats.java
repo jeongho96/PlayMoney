@@ -26,11 +26,16 @@ public class AdViewStats {
     private Advertisement ad;
 
     @CreatedDate
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "start_date" , updatable = false)
     @Temporal(TemporalType.DATE)
-    private LocalDate createdAt;
+    private LocalDate startDate;
 
+    @Column(name = "end_date" , updatable = false)
+    private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum('DAY', 'WEEK', 'MONTH')", nullable = false)
+    private VideoViewStats.Category category;
 
     @Column(name = "ad_view_count")
     private int adViewCount;
@@ -38,7 +43,7 @@ public class AdViewStats {
     @Builder
     public AdViewStats(Advertisement ad, int adViewCount) {
         this.ad = ad;
-        this.createdAt = LocalDate.now();
+        this.startDate = LocalDate.now();
         this.adViewCount = adViewCount;
 
 
@@ -48,5 +53,9 @@ public class AdViewStats {
         this.adViewCount++;
     }
 
-
+    public enum Category {
+        DAY,
+        WEEK,
+        MONTH
+    }
 }
