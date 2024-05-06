@@ -108,7 +108,7 @@ public class WatchHistoryServiceTest {
         assertThat(updatedVideo.getTotalViewCount()).as("Total view count should be greater after playing video").isEqualTo(video.getTotalViewCount());
 
         // Check if the view count of the video for today has increased
-        VideoViewStats videoViewStats = videoViewStatsRepository.findByVideo_VideoNumberAndCreatedAt(video.getVideoNumber(), LocalDate.now())
+        VideoViewStats videoViewStats = videoViewStatsRepository.findByVideo_VideoNumberAndStartDate(video.getVideoNumber(), LocalDate.now())
                 .orElseThrow(() -> new IllegalArgumentException("VideoViewStats not found for video: " + video.getVideoNumber() + " and date: " + LocalDate.now()));
         assertThat(videoViewStats.getViewCount()).as("Today's view count should be greater than 0").isGreaterThan(0);
 
@@ -117,7 +117,7 @@ public class WatchHistoryServiceTest {
         assertThat(ad.getTotalAdViewCount()).as("Total ad view count should be greater after playing video").isGreaterThan(0);
 
         // Check if the ad view count of the advertisement for today has increased
-        AdViewStats adViewStats = adViewStatsRepository.findByAd_AdNumberAndCreatedAt(ad.getAdNumber(), LocalDate.now())
+        AdViewStats adViewStats = adViewStatsRepository.findByAd_AdNumberAndStartDate(ad.getAdNumber(), LocalDate.now())
                 .orElseThrow(() -> new IllegalArgumentException("AdViewStats not found for ad: " + ad.getAdNumber() + " and date: " + LocalDate.now()));
         assertThat(adViewStats.getAdViewCount()).as("Today's ad view count should be greater than 0").isGreaterThan(0);
     }

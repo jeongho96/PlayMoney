@@ -7,5 +7,5 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface AdViewStatsRepository extends JpaRepository<AdViewStats, Long> {
-    Optional<AdViewStats> findByAd_AdNumberAndCreatedAt(Long adNumber, LocalDate now);
+    Optional<AdViewStats> findByAd_AdNumberAndStartDate(Long adNumber, LocalDate now);
 }

@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlayRequest {
+    private Long memberId;
     private Long videoId;
     private int playTime;
 

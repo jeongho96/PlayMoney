@@ -44,7 +44,7 @@ public class WatchHistoryService {
             log.info("Video saved with new total view count:" + video.getTotalViewCount());
 
             // 일일 조회수 1씩 누적.
-            VideoViewStats videoViewStats = videoViewStatsRepository.findByVideo_VideoNumberAndCreatedAt(
+            VideoViewStats videoViewStats = videoViewStatsRepository.findByVideo_VideoNumberAndStartDate(
                     video.getVideoNumber(), LocalDate.now())
                     .orElse(new VideoViewStats(video, 0));
 
@@ -60,7 +60,7 @@ public class WatchHistoryService {
             ad.increaseTotalAdViewCount();
             watchHistory.setAdCount(adCount);
 
-            AdViewStats adViewStats = adViewStatsRepository.findByAd_AdNumberAndCreatedAt(ad.getAdNumber(), LocalDate.now())
+            AdViewStats adViewStats = adViewStatsRepository.findByAd_AdNumberAndStartDate(ad.getAdNumber(), LocalDate.now())
                     .orElse(new AdViewStats(ad, 0));
             adViewStats.increaseAdViewCount();
             adViewStatsRepository.save(adViewStats);

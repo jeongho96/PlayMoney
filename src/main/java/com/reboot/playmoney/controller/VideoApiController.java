@@ -34,6 +34,14 @@ public class VideoApiController {
         return ResponseEntity.ok(historyDto);
     }
 
+    @PostMapping("/play-api")
+    public ResponseEntity<WatchHistoryResponse> playVideoNoLogin(@RequestBody PlayRequest playRequest) {
+        log.info("비디오 재생 : {}", playRequest.getVideoId());
+        Member member = userService.findById(playRequest.getMemberId());
+        Video video = videoService.findById(playRequest.getVideoId());
+        WatchHistoryResponse historyDto = watchHistoryService.playVideo(member, video, playRequest.getPlayTime());
+        return ResponseEntity.ok(historyDto);
+    }
 
 
     // video 기능 기본 CRUD
