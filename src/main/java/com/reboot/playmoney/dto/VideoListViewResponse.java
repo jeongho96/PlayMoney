@@ -1,6 +1,7 @@
 package com.reboot.playmoney.dto;
 
 import com.reboot.playmoney.domain.Video;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ public class VideoListViewResponse {
     private final LocalDateTime createdAt;
     private final int viewCount;
     private final int duration;
-
+    
     public VideoListViewResponse(Video video) {
         this.id = video.getVideoNumber();
         this.title = video.getTitle();

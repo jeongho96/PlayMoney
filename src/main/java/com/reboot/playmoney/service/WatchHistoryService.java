@@ -41,7 +41,7 @@ public class WatchHistoryService {
             log.info("increaseTotalViewCount called");
             video.increaseTotalViewCount();
             videoRepository.save(video);
-            log.info("Video saved with new total view count:" + video.getTotalViewCount());
+            log.info("Video saved with new total view count:{}", video.getTotalViewCount());
 
             // 일일 조회수 1씩 누적.
             VideoViewStats videoViewStats = videoViewStatsRepository.findByVideo_VideoNumberAndStartDate(
