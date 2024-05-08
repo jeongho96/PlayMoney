@@ -14,21 +14,21 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "video_view_stats")
+@Table(name = "video_view_stats", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"video_number", "category", "start_date", "end_date"})
+})
 public class VideoViewStats {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "view_number")
     private Long viewNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "video_number")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_number", referencedColumnName = "video_number")
     private Video video;
 
 
-    @CreatedDate
     @Column(name = "start_date" , updatable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate startDate;
 
     @Column(name = "end_date" , updatable = false)
@@ -45,8 +45,18 @@ public class VideoViewStats {
     public VideoViewStats(Video video, int viewCount) {
         this.video = video;
         this.startDate = LocalDate.now();
+        this.endDate = LocalDate.now();
         this.viewCount = viewCount;
+        this.category = Category.DAY;
 
+    }
+
+    public VideoViewStats(Video video, LocalDate startDate, LocalDate endDate, Category category, int viewCount) {
+        this.video = video;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.category = category;
+        this.viewCount = viewCount;
     }
 
     public void increaseViewCount() {
