@@ -1,5 +1,6 @@
 package com.reboot.playmoney.batch;
 
+import com.reboot.playmoney.domain.AdViewStats;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import com.reboot.playmoney.repository.VideoViewStatsRepository;
@@ -37,7 +38,7 @@ public class StatisticsBatchConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
     private final EntityManagerFactory entityManagerFactory;
-    private final VideoViewStatsItemDBWriter writerConfig;
+    private final VideoViewStatsItemDBWriter videoViewStatsItemDBWriter;
     private final VideoViewStatsRepository videoViewStatsRepository;
 
 
@@ -51,6 +52,7 @@ public class StatisticsBatchConfig {
                 .start(weeklyVideoViewStatsStep)
                 .build();
     }
+
 
     @Bean
     public Job videoMonthlyStatisticsJob(Step monthlyVideoViewStatsStep) {
@@ -74,12 +76,14 @@ public class StatisticsBatchConfig {
                 .<VideoViewStats, VideoViewStats>chunk(10, transactionManager)
                 .reader(videoViewStatsJpaPagingItemReader)
                 .processor(weeklyVideoViewStatsItemProcessor)
-                .writer(writerConfig)
+                .writer(videoViewStatsItemDBWriter)
                 .build();
     }
 
+
     // 월간 통계를 계산하는 Step
     @Bean
+    @JobScope
     public Step monthlyVideoViewStatsStep(
             JpaPagingItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader,
             ItemProcessor<VideoViewStats, VideoViewStats> monthlyVideoViewStatsItemProcessor
@@ -89,10 +93,9 @@ public class StatisticsBatchConfig {
                 .<VideoViewStats, VideoViewStats>chunk(10, transactionManager)
                 .reader(videoViewStatsJpaPagingItemReader)
                 .processor(monthlyVideoViewStatsItemProcessor)
-                .writer(writerConfig)
+                .writer(videoViewStatsItemDBWriter)
                 .build();
     }
-
 
 
     // JPA PagingItemReader 정의
