@@ -12,18 +12,14 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class VideoViewStatsItemDBWriter implements ItemWriter<List<VideoViewStats>> {
+public class VideoViewStatsItemDBWriter implements ItemWriter<VideoViewStats> {
 
     private final VideoViewStatsRepository videoViewStatsRepository;
 
     @Override
-    public void write(Chunk<? extends List<VideoViewStats>> lists) throws Exception {
-        List<VideoViewStats> videoViewStatsList = new ArrayList<>();
-
-        for (List<VideoViewStats> videoViewStats : lists) {
-            videoViewStatsList.addAll(videoViewStats);
+    public void write(Chunk<? extends VideoViewStats> chunk) throws Exception {
+        for(VideoViewStats stat : chunk){
+            videoViewStatsRepository.save(stat);
         }
-
-        videoViewStatsRepository.saveAll(videoViewStatsList);
     }
 }

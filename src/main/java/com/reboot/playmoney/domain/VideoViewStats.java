@@ -23,8 +23,8 @@ public class VideoViewStats {
     @Column(name = "view_number")
     private Long viewNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "video_number")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_number", referencedColumnName = "video_number")
     private Video video;
 
 

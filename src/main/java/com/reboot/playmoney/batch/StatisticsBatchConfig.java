@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -22,6 +23,7 @@ import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -32,30 +34,37 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Configuration
-@EnableScheduling
 @RequiredArgsConstructor
 public class StatisticsBatchConfig {
 
-
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
-    private final VideoViewStatsRepository videoViewStatsRepository;
     private final EntityManagerFactory entityManagerFactory;
+    private final VideoViewStatsItemDBWriter writerConfig;
 
 
 
-    // 주간 및 월간 통계를 계산하는 Flow 정의
     @Bean
-    public Job videoStatisticsJob(Step weeklyVideoViewStatsStep, Step monthlyVideoViewStatsStep) {
-        log.info("Starting video statistics job");
+    public Job videoWeeklyStatisticsJob(Step weeklyVideoViewStatsStep) {
+        log.info("Starting video count weekly job");
 
-        return new JobBuilder("videoStatisticsJob", jobRepository)
+        return new JobBuilder("videoWeeklyStatisticsJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(weeklyVideoViewStatsStep)
-//                .next(monthlyVideoViewStatsStep)
+                .build();
+    }
+
+    @Bean
+    public Job videoMonthlyStatisticsJob(Step monthlyVideoViewStatsStep) {
+        log.info("Starting video count monthly job");
+
+        return new JobBuilder("videoMonthlyStatisticsJob", jobRepository)
+                .incrementer(new RunIdIncrementer())
+                .start(monthlyVideoViewStatsStep)
                 .build();
     }
 
@@ -63,43 +72,46 @@ public class StatisticsBatchConfig {
     @Bean
     @JobScope
     public Step weeklyVideoViewStatsStep(
-            ItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader,
-            ItemProcessor<VideoViewStats, VideoViewStats> weeklyVideoViewStatsItemProcessor,
-            ItemWriter<VideoViewStats> videoViewStatsJpaItemWriter
+            JpaPagingItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader,
+            ItemProcessor<VideoViewStats, VideoViewStats> weeklyVideoViewStatsItemProcessor
     ) {
         log.info("Starting weekly video view stats step");
+
+        LocalDate startDate = LocalDate.now().minusDays(7).with(DayOfWeek.MONDAY);
+        LocalDate endDate = startDate.plusDays(6);
         return new StepBuilder("weeklyVideoViewStatsStep", jobRepository)
                 .<VideoViewStats, VideoViewStats>chunk(10, transactionManager)
                 .reader(videoViewStatsJpaPagingItemReader)
                 .processor(weeklyVideoViewStatsItemProcessor)
-                .writer(videoViewStatsJpaItemWriter)
+                .writer(writerConfig)
                 .build();
     }
 
-/*    // 월간 통계를 계산하는 Step
+    // 월간 통계를 계산하는 Step
     @Bean
     public Step monthlyVideoViewStatsStep(
             JpaPagingItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader,
-            ItemProcessor<VideoViewStats, VideoViewStats> monthlyVideoViewStatsItemProcessor,
-            JpaItemWriter<VideoViewStats> videoViewStatsJpaItemWriter
+            ItemProcessor<VideoViewStats, VideoViewStats> monthlyVideoViewStatsItemProcessor
     ) {
         log.info("Starting monthly video view stats step");
         return new StepBuilder("monthlyVideoViewStatsStep", jobRepository)
                 .<VideoViewStats, VideoViewStats>chunk(10, transactionManager)
                 .reader(videoViewStatsJpaPagingItemReader)
                 .processor(monthlyVideoViewStatsItemProcessor)
-                .writer(videoViewStatsJpaItemWriter)
+                .writer(writerConfig)
                 .build();
-    }*/
+    }
 
 
 
     // JPA PagingItemReader 정의
     @Bean
     @StepScope
-    public ItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader() {
+    public JpaPagingItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader(
+            @Value("#{jobParameters['date']}") LocalDate date
+    ) {
         log.info("Starting video view stats jpa paging item reader");
-        LocalDate startDate = LocalDate.now().minusDays(6).with(DayOfWeek.MONDAY);
+        LocalDate startDate = date.minusDays(7).with(DayOfWeek.MONDAY);
         LocalDate endDate = startDate.plusDays(6);
 
         Map<String, Object> parameters = new HashMap<>();
@@ -108,15 +120,15 @@ public class StatisticsBatchConfig {
         parameters.put("endDate", endDate);
 
 
-            return new JpaPagingItemReaderBuilder<VideoViewStats>()
-                    .name("videoViewStatsJpaPagingItemReader")
-                    .entityManagerFactory(entityManagerFactory)
-                    .pageSize(10)
-                    .queryString("SELECT v FROM VideoViewStats v WHERE v.category = :category " +
-                            "AND v.startDate BETWEEN :startDate AND :endDate " +
-                            "ORDER BY v.startDate ASC")
-                    .parameterValues(parameters)
-                    .build();
+        return new JpaPagingItemReaderBuilder<VideoViewStats>()
+                .name("videoViewStatsJpaPagingItemReader")
+                .entityManagerFactory(entityManagerFactory)
+                .pageSize(10)
+                .queryString("SELECT v FROM VideoViewStats v WHERE v.category = :category " +
+                        "AND v.startDate BETWEEN :startDate AND :endDate " +
+                        "ORDER BY v.startDate ASC")
+                .parameterValues(parameters)
+                .build();
     }
 
 
@@ -125,27 +137,28 @@ public class StatisticsBatchConfig {
     @StepScope
     ItemProcessor<VideoViewStats, VideoViewStats> weeklyVideoViewStatsItemProcessor() {
         log.info("Starting weekly video view stats item processor");
+        ConcurrentHashMap<Long, VideoViewStats> videoStatisticsCache = new ConcurrentHashMap<>();
         return dailyStats -> {
-                LocalDate startDateOfWeek = dailyStats.getStartDate().with(DayOfWeek.MONDAY);
-                LocalDate endDateOfWeek = dailyStats.getStartDate().with(DayOfWeek.SUNDAY);
+            LocalDate startDateOfWeek = dailyStats.getStartDate().with(DayOfWeek.MONDAY);
+            LocalDate endDateOfWeek = dailyStats.getStartDate().with(DayOfWeek.SUNDAY);
 
-                // 주간 데이터가 이미 존재하는지 확인
-                boolean exists = videoViewStatsRepository.existsByVideoAndCategoryAndStartDateAndEndDate(
-                        dailyStats.getVideo(), VideoViewStats.Category.WEEK, startDateOfWeek, endDateOfWeek
-                );
+            final Long videoNumber = dailyStats.getVideo().getVideoNumber();
+            videoStatisticsCache.compute(videoNumber, (key, videoViewStats) -> {
+                if(videoViewStats == null){
+                    return new VideoViewStats(
+                            dailyStats.getVideo(),
+                            startDateOfWeek,
+                            endDateOfWeek,
+                            VideoViewStats.Category.WEEK,
+                            dailyStats.getViewCount()
+                    );
 
-                if (exists) {
-                    // 이미 주간 데이터가 존재하는 경우 null을 반환
-                    return null;
+                }else{
+                    videoViewStats.setViewCount(videoViewStats.getViewCount() + dailyStats.getViewCount());
+                    return videoViewStats;
                 }
-
-                Integer weeklyViewCount = videoViewStatsRepository.sumDailyViewsForPeriod(
-                        dailyStats.getVideo().getVideoNumber(), startDateOfWeek, endDateOfWeek);
-
-                return new VideoViewStats(
-                        dailyStats.getVideo(),startDateOfWeek,
-                        endDateOfWeek,VideoViewStats.Category.WEEK,
-                        weeklyViewCount != null ? weeklyViewCount : 0);
+            });
+            return videoStatisticsCache.get(videoNumber);
         };
     }
 
@@ -184,32 +197,7 @@ public class StatisticsBatchConfig {
         };
     }*/
 
-    // JPA ItemWriter 정의
-    @Bean
-    @StepScope
-    public ItemWriter<VideoViewStats> videoViewStatsJpaItemWriter() {
-        log.info("Starting video view stats jpa item writer");
-        return new JpaItemWriterBuilder<VideoViewStats>()
-                .entityManagerFactory(entityManagerFactory)
-                .build();
-    }
 
-//    // 매주 금요일마다 주간 정산을 한다.
-//    public JobExecutionDecider isFridayDecider() {
-//        return (jobExecution, stepExecution) -> {
-//            final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-//            final String targetDate = stepExecution.getJobParameters().getString("targetDate");
-//            final LocalDate date = LocalDate.parse(targetDate, formatter);
-//
-//            if (date.getDayOfWeek() != DayOfWeek.FRIDAY) {
-//                return new FlowExecutionStatus("NOOP");
-//            }
-//
-//            return FlowExecutionStatus.COMPLETED;
-//        };
-//    }
-//
-//    // 매두 1일마다 월간 정산을 한다.
 
 
 }
