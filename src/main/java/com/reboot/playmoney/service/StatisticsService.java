@@ -22,7 +22,11 @@ public class StatisticsService {
     private final VideoRepository videoRepository;
 
 
-
+    /**
+     * 날짜를 입력 받아 그 기간 동안 특정 영상의 조회수를 확인하고, 상위 5개를 출력.
+     * @param topRequest
+     * @return Top5ViewCount
+     */
     public List<Top5ViewCount> findViewTop5Video(TopRequest topRequest) {
 
         List<Object[]> top5Stats;
@@ -58,6 +62,7 @@ public class StatisticsService {
         }
         return top5ViewCounts;
     }
+
 
     public List<VideoListViewResponse> findDurationTop5Video(LocalDateTime startDate, LocalDateTime endDate) {
         List<Video> video = videoRepository.findTop5VideosByDurationBetweenDates(startDate, endDate);

@@ -1,5 +1,6 @@
 package com.reboot.playmoney.repository;
 
+import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,5 +22,11 @@ public interface VideoViewStatsRepository extends JpaRepository<VideoViewStats, 
     List<Object[]> findTop5ViewStatsByPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
 
+    boolean existsByVideoAndCategoryAndStartDateAndEndDate(Video video, VideoViewStats.Category category,
+                                                           LocalDate startDate, LocalDate endDate);
+
+
+    @Query("SELECT SUM(v.viewCount) FROM VideoViewStats v WHERE v.video.videoNumber = :videoNumber AND v.category = 'DAY' AND v.startDate BETWEEN :startDate AND :endDate")
+    Integer sumDailyViewsForPeriod(@Param("videoNumber") Long videoNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
 }

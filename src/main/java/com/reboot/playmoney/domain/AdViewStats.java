@@ -25,9 +25,7 @@ public class AdViewStats {
     @JoinColumn(name = "ad_number")
     private Advertisement ad;
 
-    @CreatedDate
     @Column(name = "start_date" , updatable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate startDate;
 
     @Column(name = "end_date" , updatable = false)
@@ -44,7 +42,9 @@ public class AdViewStats {
     public AdViewStats(Advertisement ad, int adViewCount) {
         this.ad = ad;
         this.startDate = LocalDate.now();
+        this.endDate = LocalDate.now();
         this.adViewCount = adViewCount;
+        this.category = VideoViewStats.Category.DAY;
 
 
     }
