@@ -21,6 +21,8 @@ public interface VideoViewStatsRepository extends JpaRepository<VideoViewStats, 
             "ORDER BY view_count DESC LIMIT 5")
     List<Object[]> findTop5ViewStatsByPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    VideoViewStats findByVideoAndStartDateAndEndDateAndCategory
+            (Video video, LocalDate startDate, LocalDate endDate, VideoViewStats.Category category);
 
     boolean existsByVideoAndCategoryAndStartDateAndEndDate(Video video, VideoViewStats.Category category,
                                                            LocalDate startDate, LocalDate endDate);

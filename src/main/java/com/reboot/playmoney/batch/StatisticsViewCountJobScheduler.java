@@ -8,15 +8,14 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Configuration
 @Slf4j
 @RequiredArgsConstructor
-public class JobScheduler {
+public class StatisticsViewCountJobScheduler {
 
     private final JobLauncher jobLauncher;
 
@@ -24,17 +23,19 @@ public class JobScheduler {
     private final Job videoMonthlyStatisticsJob;
 
 
-//    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시
+    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시
 //    @Scheduled(cron = "0 * * * * ?") // 매 1분 마다(테스트로)
     public void jobWeeklyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
 
-        // The current date in LocalDate format
-        LocalDate localDate = LocalDate.now();
+        // The current date in LocalDateTime format
+        // 날짜가 아니라 localDateTime으로 받는 이유는
+        // 동일한 잡 파라미터 사용시 에러가 나기 때문에 그걸 방지.
+        LocalDateTime localDate = LocalDateTime.now();
 
         // Pass the current Date as a job parameter
         JobParameters parameters = new JobParametersBuilder()
-                .addLocalDate("date", localDate)
+                .addLocalDateTime("dateTime", localDate)
                 .addString("statisticsType", "week")
                 .toJobParameters();
 
@@ -55,16 +56,17 @@ public class JobScheduler {
 
     }
 
-
+    @Scheduled(cron = "0 0 2 1 * ?") // 매달 1일 새벽 2시
+//    @Scheduled(cron = "5 * * * * ?") // 매 1분 마다(테스트로)
     public void jobMonthlyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
 
-        // The current date in LocalDate format
-        LocalDate localDate = LocalDate.now();
+        // The current date in LocalDateTime format
+        LocalDateTime localDate = LocalDateTime.now();
 
         // Pass the current Date as a job parameter
         JobParameters parameters = new JobParametersBuilder()
-                .addLocalDate("date", localDate)
+                .addLocalDateTime("dateTime", localDate)
                 .addString("statisticsType", "month")
                 .toJobParameters();
 

@@ -1,5 +1,6 @@
 package com.reboot.playmoney.batch;
 
+import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import com.reboot.playmoney.repository.VideoViewStatsRepository;
 import jakarta.persistence.EntityManagerFactory;
@@ -7,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -15,25 +15,18 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.JpaCursorItemReader;
-import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
-import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
-import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -45,6 +38,7 @@ public class StatisticsBatchConfig {
     private final PlatformTransactionManager transactionManager;
     private final EntityManagerFactory entityManagerFactory;
     private final VideoViewStatsItemDBWriter writerConfig;
+    private final VideoViewStatsRepository videoViewStatsRepository;
 
 
 
@@ -76,9 +70,6 @@ public class StatisticsBatchConfig {
             ItemProcessor<VideoViewStats, VideoViewStats> weeklyVideoViewStatsItemProcessor
     ) {
         log.info("Starting weekly video view stats step");
-
-        LocalDate startDate = LocalDate.now().minusDays(7).with(DayOfWeek.MONDAY);
-        LocalDate endDate = startDate.plusDays(6);
         return new StepBuilder("weeklyVideoViewStatsStep", jobRepository)
                 .<VideoViewStats, VideoViewStats>chunk(10, transactionManager)
                 .reader(videoViewStatsJpaPagingItemReader)
@@ -108,11 +99,19 @@ public class StatisticsBatchConfig {
     @Bean
     @StepScope
     public JpaPagingItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader(
-            @Value("#{jobParameters['date']}") LocalDate date
+            @Value("#{jobParameters['dateTime']}") LocalDateTime dateTime,
+            @Value("#{jobParameters['statisticsType']}") String dateType
     ) {
         log.info("Starting video view stats jpa paging item reader");
-        LocalDate startDate = date.minusDays(7).with(DayOfWeek.MONDAY);
+        LocalDate date = dateTime.toLocalDate();
+        LocalDate startDate = date.minusDays(7).with(DayOfWeek.MONDAY);;
         LocalDate endDate = startDate.plusDays(6);
+
+        if(dateType.equals("month")){
+            startDate = date.minusMonths(1).withDayOfMonth(1); // 직전 월의 첫째 날
+            endDate = startDate.plusMonths(1).minusDays(1); // 해당 월의 마지막 일
+        }
+
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("category", VideoViewStats.Category.DAY);
@@ -142,6 +141,14 @@ public class StatisticsBatchConfig {
             LocalDate startDateOfWeek = dailyStats.getStartDate().with(DayOfWeek.MONDAY);
             LocalDate endDateOfWeek = dailyStats.getStartDate().with(DayOfWeek.SUNDAY);
 
+            Video video = dailyStats.getVideo();
+            VideoViewStats existingStats = videoViewStatsRepository.findByVideoAndStartDateAndEndDateAndCategory
+                    (video, startDateOfWeek, endDateOfWeek, VideoViewStats.Category.WEEK);
+
+            if(existingStats != null){
+                return existingStats;
+            }
+
             final Long videoNumber = dailyStats.getVideo().getVideoNumber();
             videoStatisticsCache.compute(videoNumber, (key, videoViewStats) -> {
                 if(videoViewStats == null){
@@ -163,39 +170,42 @@ public class StatisticsBatchConfig {
     }
 
 
-    /*// 월간 통계를 계산하는 Processor 정의
+    // 월간 통계를 계산하는 Processor 정의
     @Bean
     ItemProcessor<VideoViewStats, VideoViewStats> monthlyVideoViewStatsItemProcessor() {
         log.info("Starting monthly video view stats item processor");
-        return videoViewStats -> {
-            if (videoViewStats.getCategory().equals(VideoViewStats.Category.DAY)) {
-                LocalDate startDate = videoViewStats.getStartDate().withDayOfMonth(1); // 해당 월의 첫째 날
-                LocalDate endDate = startDate.plusMonths(1).minusDays(1); // 해당 월의 마지막 일
+        ConcurrentHashMap<Long, VideoViewStats> videoStatisticsCache = new ConcurrentHashMap<>();
+        return dailyStats -> {
+            LocalDate startDateOfMonth = dailyStats.getStartDate().withDayOfMonth(1);
+            LocalDate endDateOfMonth = startDateOfMonth.plusMonths(1).minusDays(1);;
 
-                // 해당 기간에 대한 월간 조회수 데이터가 이미 존재하는지 확인
-                if (!videoViewStatsRepository.existsByVideo_VideoNumberAndCategoryAndStartDateAndEndDate(
-                        videoViewStats.getVideo().getVideoNumber(),
-                        VideoViewStats.Category.MONTH,
-                        startDate,
-                        endDate
-                )) {
-                    Integer monthlyViewCount = videoViewStatsRepository.sumDailyViewsForPeriod(
-                            videoViewStats.getVideo().getVideoNumber(), startDate, endDate);
+            Video video = dailyStats.getVideo();
+            VideoViewStats existingStats = videoViewStatsRepository.findByVideoAndStartDateAndEndDateAndCategory
+                    (video, startDateOfMonth, endDateOfMonth, VideoViewStats.Category.MONTH);
 
-                    // 새로운 VideoViewStats 객체를 생성하여 월간 데이터를 저장합니다.
-                    VideoViewStats newMonthlyStats = new VideoViewStats();
-                    newMonthlyStats.setVideo(videoViewStats.getVideo());
-                    newMonthlyStats.setStartDate(startDate);
-                    newMonthlyStats.setEndDate(endDate);
-                    newMonthlyStats.setCategory(VideoViewStats.Category.MONTH);
-                    newMonthlyStats.setViewCount(monthlyViewCount != null ? monthlyViewCount : 0);
-
-                    return newMonthlyStats;
-                }
+            if(existingStats != null){
+                return existingStats;
             }
-            return null; // DAY 카테고리가 아닌 경우 null을 반환하여 처리하지 않습니다.
+
+            final Long videoNumber = dailyStats.getVideo().getVideoNumber();
+            videoStatisticsCache.compute(videoNumber, (key, videoViewStats) -> {
+                if(videoViewStats == null){
+                    return new VideoViewStats(
+                            dailyStats.getVideo(),
+                            startDateOfMonth,
+                            endDateOfMonth,
+                            VideoViewStats.Category.MONTH,
+                            dailyStats.getViewCount()
+                    );
+
+                }else{
+                    videoViewStats.setViewCount(videoViewStats.getViewCount() + dailyStats.getViewCount());
+                    return videoViewStats;
+                }
+            });
+            return videoStatisticsCache.get(videoNumber);
         };
-    }*/
+    }
 
 
 

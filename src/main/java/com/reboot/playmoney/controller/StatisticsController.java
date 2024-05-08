@@ -51,15 +51,4 @@ public class StatisticsController {
     }
 
 
-    @GetMapping("/test-video")
-    public ResponseEntity<Boolean> checkMethodVideo() {
-        LocalDate startDate = LocalDate.now().minusDays(6).with(DayOfWeek.MONDAY);
-        LocalDate endDate = startDate.plusDays(6);
-        Video video = videoRepository.findById(2L).orElse(null);
-
-
-        return ResponseEntity.ok(
-                videoViewStatsRepository.existsByVideoAndCategoryAndStartDateAndEndDate(video, VideoViewStats.Category.WEEK,startDate,endDate)
-        );
-    }
 }
