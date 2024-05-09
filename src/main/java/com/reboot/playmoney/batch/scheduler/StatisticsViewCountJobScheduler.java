@@ -1,4 +1,4 @@
-package com.reboot.playmoney.batch;
+package com.reboot.playmoney.batch.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ public class StatisticsViewCountJobScheduler {
         log.info("Job getFailureExceptions: {}", jobExecution.getFailureExceptions());
     }
 
-    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시 실행
+    @Scheduled(cron = "0 0 1 * * MON") // 매주 월요일 새벽 1시 실행
     public void jobWeeklyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
         JobParameters parameters = createJobParameters("week");
