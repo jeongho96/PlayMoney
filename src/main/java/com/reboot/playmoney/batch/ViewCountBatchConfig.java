@@ -1,6 +1,5 @@
 package com.reboot.playmoney.batch;
 
-import com.reboot.playmoney.domain.AdViewStats;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import com.reboot.playmoney.repository.VideoViewStatsRepository;
@@ -33,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class StatisticsBatchConfig {
+public class ViewCountBatchConfig {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;

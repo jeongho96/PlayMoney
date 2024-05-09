@@ -33,8 +33,8 @@ public class VideoViewStatsRepositoryTest {
                 .email("email@email.com")
                 .password("password")
                 .username("username")
-                .socialProvider(SocialProvider.GOOGLE)
-                .userType(UserType.SELLER)
+                .socialProvider(Member.SocialProvider.GOOGLE)
+                .userType(Member.UserType.SELLER)
                 .build();
 
         Video video = Video.builder()

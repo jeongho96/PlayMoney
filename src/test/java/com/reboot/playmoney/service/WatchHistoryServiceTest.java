@@ -54,7 +54,7 @@ public class WatchHistoryServiceTest {
         member = Member.builder()
                 .email("test-email")
                 .username("test-username")
-                .userType(UserType.SELLER)
+                .userType(Member.UserType.SELLER)
                 .build();
         member = userRepository.save(member);
 

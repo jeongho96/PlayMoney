@@ -40,9 +40,21 @@ public class Member implements UserDetails {
     @Enumerated(EnumType.STRING)
     private SocialProvider socialProvider; // 추가된 부분
 
+    public enum SocialProvider {
+        GOOGLE,
+        KAKAO,
+        NAVER
+    }
+
+
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserType userType; // 추가된 부분
+
+    public enum UserType {
+        SELLER, USER
+    }
+
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
