@@ -64,8 +64,8 @@ public class SalesScheduler {
         logJobExecution(jobExecution);
     }
 
-//    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시 실행
-    @Scheduled(cron = "*/20 * * * * ?") // 테스트용 매 20초 실행
+    @Scheduled(cron = "0 45 0 ? * MON") // 매주 월요일 새벽 00:45에 수행
+//    @Scheduled(cron = "*/20 * * * * ?") // 테스트용 매 20초 실행
     public void SalesJobWeeklyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
         JobParameters parameters = createJobParameters("week");
@@ -76,8 +76,8 @@ public class SalesScheduler {
         logJobExecution(jobExecution);
     }
 
-    @Scheduled(cron = "0 0 2 1 * ?") // 매달 1일 새벽 2시 실행
-    @Scheduled(cron = "*/30 * * * * ?") // 테스트용 매 20초 실행
+    @Scheduled(cron = "30 0 1 1 * ?") // 매달 1일 새벽 00:30에 수행
+//    @Scheduled(cron = "*/30 * * * * ?") // 테스트용 매 20초 실행
     public void SalesJobMonthlyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
         JobParameters parameters = createJobParameters("month");
