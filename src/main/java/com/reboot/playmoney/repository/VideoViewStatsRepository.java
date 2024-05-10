@@ -1,5 +1,6 @@
 package com.reboot.playmoney.repository;
 
+import com.reboot.playmoney.domain.DayCategory;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,9 +23,9 @@ public interface VideoViewStatsRepository extends JpaRepository<VideoViewStats, 
     List<Object[]> findTop5ViewStatsByPeriod(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     VideoViewStats findByVideoAndStartDateAndEndDateAndCategory
-            (Video video, LocalDate startDate, LocalDate endDate, VideoViewStats.Category category);
+            (Video video, LocalDate startDate, LocalDate endDate, DayCategory category);
 
-    boolean existsByVideoAndCategoryAndStartDateAndEndDate(Video video, VideoViewStats.Category category,
+    boolean existsByVideoAndCategoryAndStartDateAndEndDate(Video video, DayCategory category,
                                                            LocalDate startDate, LocalDate endDate);
 
 

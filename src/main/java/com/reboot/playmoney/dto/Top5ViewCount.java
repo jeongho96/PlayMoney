@@ -1,5 +1,6 @@
 package com.reboot.playmoney.dto;
 
+import com.reboot.playmoney.domain.DayCategory;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import jakarta.persistence.Column;
@@ -25,12 +26,12 @@ public class Top5ViewCount {
 
     private LocalDate endDate;
 
-    private VideoViewStats.Category category;
+    private DayCategory category;
 
     private int viewCount;
 
     @Builder
-    public Top5ViewCount(Long videoNumber, LocalDate startDate, LocalDate endDate, VideoViewStats.Category category, int viewCount) {
+    public Top5ViewCount(Long videoNumber, LocalDate startDate, LocalDate endDate, DayCategory category, int viewCount) {
         this.videoNumber = videoNumber;
         this.startDate = startDate;
         this.endDate = endDate;

@@ -33,7 +33,7 @@ public class AdViewStats {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "enum('DAY', 'WEEK', 'MONTH')", nullable = false)
-    private VideoViewStats.Category category;
+    private DayCategory category;
 
     @Column(name = "ad_view_count")
     private int adViewCount;
@@ -44,18 +44,21 @@ public class AdViewStats {
         this.startDate = LocalDate.now();
         this.endDate = LocalDate.now();
         this.adViewCount = adViewCount;
-        this.category = VideoViewStats.Category.DAY;
+        this.category = DayCategory.DAY;
 
 
+    }
+
+    public AdViewStats(Advertisement ad, LocalDate startDate, LocalDate endDate, DayCategory category, int adViewCount) {
+        this.ad = ad;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.category = category;
+        this.adViewCount = adViewCount;
     }
 
     public void increaseAdViewCount() {
         this.adViewCount++;
     }
 
-    public enum Category {
-        DAY,
-        WEEK,
-        MONTH
-    }
 }

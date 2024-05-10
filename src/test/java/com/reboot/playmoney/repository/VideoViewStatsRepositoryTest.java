@@ -53,12 +53,12 @@ public class VideoViewStatsRepositoryTest {
         LocalDate startDate = LocalDate.now().with(DayOfWeek.MONDAY);
         LocalDate endDate = LocalDate.now().with(DayOfWeek.SUNDAY);
 
-        VideoViewStats stats = new VideoViewStats(video, startDate, endDate, VideoViewStats.Category.WEEK, 100);
+        VideoViewStats stats = new VideoViewStats(video, startDate, endDate, DayCategory.WEEK, 100);
         entityManager.persistAndFlush(stats);
 
         // when
         boolean exists = videoViewStatsRepository.existsByVideoAndCategoryAndStartDateAndEndDate(video,
-                VideoViewStats.Category.WEEK, startDate, endDate);
+                DayCategory.WEEK, startDate, endDate);
 
         // then
         assertThat(exists).isTrue();

@@ -42,7 +42,7 @@ public class Sales {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "enum('DAY', 'WEEK', 'MONTH')", nullable = false)
-    private VideoViewStats.Category category;
+    private DayCategory category;
 
     @Column(name = "start_date" , updatable = false)
     private LocalDate startDate;
@@ -51,7 +51,7 @@ public class Sales {
     private LocalDate endDate;
 
     @Builder
-    public Sales(Member member, Video video, float videoSaleAmount, float adSaleAmount, VideoViewStats.Category category, LocalDate startDate, LocalDate endDate) {
+    public Sales(Member member, Video video, float videoSaleAmount, float adSaleAmount, DayCategory category, LocalDate startDate, LocalDate endDate) {
         this.member = member;
         this.video = video;
         this.videoSaleAmount = videoSaleAmount;

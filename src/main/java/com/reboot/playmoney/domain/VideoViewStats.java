@@ -36,7 +36,7 @@ public class VideoViewStats {
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "enum('DAY', 'WEEK', 'MONTH')", nullable = false)
-    private Category category;
+    private DayCategory category;
 
     @Column(name = "view_count")
     private int viewCount;
@@ -47,11 +47,11 @@ public class VideoViewStats {
         this.startDate = LocalDate.now();
         this.endDate = LocalDate.now();
         this.viewCount = viewCount;
-        this.category = Category.DAY;
+        this.category = DayCategory.DAY;
 
     }
 
-    public VideoViewStats(Video video, LocalDate startDate, LocalDate endDate, Category category, int viewCount) {
+    public VideoViewStats(Video video, LocalDate startDate, LocalDate endDate, DayCategory category, int viewCount) {
         this.video = video;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -63,10 +63,5 @@ public class VideoViewStats {
         this.viewCount++;
     }
 
-    public enum Category {
-        DAY,
-        WEEK,
-        MONTH
-    }
 
 }

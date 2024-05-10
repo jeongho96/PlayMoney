@@ -1,5 +1,6 @@
 package com.reboot.playmoney.service;
 
+import com.reboot.playmoney.domain.DayCategory;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import com.reboot.playmoney.dto.Top5ViewCount;
@@ -52,7 +53,7 @@ public class StatisticsService {
                         .videoNumber(video.getVideoNumber())
                         .startDate(topRequest.getStartDate())
                         .endDate(topRequest.getEndDate())
-                        .category(VideoViewStats.Category.valueOf(topRequest.getType()))
+                        .category(DayCategory.valueOf(topRequest.getType()))
                         .viewCount(viewCount)
                         .build();
 

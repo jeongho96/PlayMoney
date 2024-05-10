@@ -1,5 +1,6 @@
 package com.reboot.playmoney.batch;
 
+import com.reboot.playmoney.domain.DayCategory;
 import com.reboot.playmoney.domain.Video;
 import com.reboot.playmoney.domain.VideoViewStats;
 import com.reboot.playmoney.repository.VideoViewStatsRepository;
@@ -116,7 +117,7 @@ public class ViewCountBatchConfig {
 
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("category", VideoViewStats.Category.DAY);
+        parameters.put("category", DayCategory.DAY);
         parameters.put("startDate", startDate);
         parameters.put("endDate", endDate);
 
@@ -145,7 +146,7 @@ public class ViewCountBatchConfig {
 
             Video video = dailyStats.getVideo();
             VideoViewStats existingStats = videoViewStatsRepository.findByVideoAndStartDateAndEndDateAndCategory
-                    (video, startDateOfWeek, endDateOfWeek, VideoViewStats.Category.WEEK);
+                    (video, startDateOfWeek, endDateOfWeek, DayCategory.WEEK);
 
             if(existingStats != null){
                 return existingStats;
@@ -158,7 +159,7 @@ public class ViewCountBatchConfig {
                             dailyStats.getVideo(),
                             startDateOfWeek,
                             endDateOfWeek,
-                            VideoViewStats.Category.WEEK,
+                            DayCategory.WEEK,
                             dailyStats.getViewCount()
                     );
 
@@ -183,7 +184,7 @@ public class ViewCountBatchConfig {
 
             Video video = dailyStats.getVideo();
             VideoViewStats existingStats = videoViewStatsRepository.findByVideoAndStartDateAndEndDateAndCategory
-                    (video, startDateOfMonth, endDateOfMonth, VideoViewStats.Category.MONTH);
+                    (video, startDateOfMonth, endDateOfMonth, DayCategory.MONTH);
 
             if(existingStats != null){
                 return existingStats;
@@ -196,7 +197,7 @@ public class ViewCountBatchConfig {
                             dailyStats.getVideo(),
                             startDateOfMonth,
                             endDateOfMonth,
-                            VideoViewStats.Category.MONTH,
+                            DayCategory.MONTH,
                             dailyStats.getViewCount()
                     );
 
