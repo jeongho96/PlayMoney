@@ -1,33 +1,29 @@
-package com.reboot.playmoney.batch;
+package com.reboot.playmoney.batch.config;
 
 
+import com.reboot.playmoney.batch.DailyAdSalesProcessor;
+import com.reboot.playmoney.batch.DailyVideoSalesProcessor;
+import com.reboot.playmoney.batch.DailySalesItemDBWriter;
 import com.reboot.playmoney.domain.AdViewStats;
 import com.reboot.playmoney.domain.DayCategory;
 import com.reboot.playmoney.domain.Sales;
 import com.reboot.playmoney.domain.VideoViewStats;
-import com.reboot.playmoney.repository.AdViewStatsRepository;
-import com.reboot.playmoney.repository.SalesRepository;
-import com.reboot.playmoney.repository.VideoViewStatsRepository;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.flow.FlowExecutionStatus;
 import org.springframework.batch.core.job.flow.JobExecutionDecider;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

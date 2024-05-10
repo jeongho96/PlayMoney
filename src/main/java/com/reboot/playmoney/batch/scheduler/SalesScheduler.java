@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class SalesScheduler {
     private final JobLauncher jobLauncher;
     private final Job dailyViewSalesJob;
-//    private final Job weeklySalesJob;
+    private final Job weeklySalesJob;
 //    private final Job monthlySalesJob;
 
     private JobParameters createJobParameters(String statisticsType) {
@@ -41,7 +41,7 @@ public class SalesScheduler {
         log.info("Job getFailureExceptions: {}", jobExecution.getFailureExceptions());
     }
 
-    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시 실행
+    @Scheduled(cron = "0 0 1 * * ?") // 매일 새벽 1시에 수행
 //    @Scheduled(cron = "*/20 * * * * ?") // 테스트용 매 20초 실행
     public void SalesJobDailyVideoViewScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
@@ -53,7 +53,7 @@ public class SalesScheduler {
         logJobExecution(jobExecution);
     }
 
-    @Scheduled(cron = "30 0 1 * * MON") // 매주 월요일 새벽 1시 30초 실행
+    @Scheduled(cron = "0 5 1 * * ?") // 매일 새벽 1시 5분에 수행
 //    @Scheduled(cron = "*/30 * * * * ?") // 테스트용 매 30초 실행
     public void SalesJobDailyAdViewScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
@@ -66,15 +66,16 @@ public class SalesScheduler {
     }
 
 //    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시 실행
-//    public void SalesJobWeeklyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
-//            JobRestartException, JobInstanceAlreadyCompleteException {
-//        JobParameters parameters = createJobParameters("week");
-//        JobExecution jobExecution = jobLauncher.run(weeklySalesJob, parameters);
-//        while (jobExecution.isRunning()) {
-//            log.info("...");
-//        }
-//        logJobExecution(jobExecution);
-//    }
+    @Scheduled(cron = "*/20 * * * * ?") // 테스트용 매 20초 실행
+    public void SalesJobWeeklyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
+            JobRestartException, JobInstanceAlreadyCompleteException {
+        JobParameters parameters = createJobParameters("week");
+        JobExecution jobExecution = jobLauncher.run(weeklySalesJob, parameters);
+        while (jobExecution.isRunning()) {
+            log.info("...");
+        }
+        logJobExecution(jobExecution);
+    }
 //
 //    @Scheduled(cron = "0 0 2 1 * ?") // 매달 1일 새벽 2시 실행
 //    public void SalesJobMonthlyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,

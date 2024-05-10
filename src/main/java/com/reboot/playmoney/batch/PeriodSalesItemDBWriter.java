@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DailySalesItemDBWriter implements ItemWriter<Sales> {
+public class PeriodSalesItemDBWriter implements ItemWriter<Sales> {
 
     private final SalesRepository salesRepository;
 
