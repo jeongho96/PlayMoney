@@ -1,6 +1,8 @@
 package com.reboot.playmoney.batch;
 
 
+import com.reboot.playmoney.domain.AdViewStats;
+import com.reboot.playmoney.domain.DayCategory;
 import com.reboot.playmoney.domain.Sales;
 import com.reboot.playmoney.domain.VideoViewStats;
 import com.reboot.playmoney.repository.AdViewStatsRepository;
@@ -24,6 +26,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,34 +48,22 @@ public class DailySalesBatchConfig {
     private final EntityManagerFactory entityManagerFactory;
 
     private final DailyVideoSalesProcessor dailyVideoSalesProcessor;
+    private final DailyAdSalesProcessor dailyAdSalesProcessor;
     private final DailySalesItemDBWriter dailySalesItemDBWriter;
 
 
 
-//    @Bean
-//    public Job dailyViewSalesJob(Step dailyViewSalesStep, Step dailyAdSalesStep) {
-//        log.info("Starting daily VideoView sales job");
-//
-//
-//
-//        return new JobBuilder("dailyViewSalesJob", jobRepository)
-//                .start(viewTypeDecider())
-//                .next(viewTypeDecider()).on("A").to(dailyViewSalesStep)
-//                .from(viewTypeDecider()).on("B").to(dailyAdSalesStep)
-//                .end()
-//                .build();
-//    }
-
     @Bean
-    public Job dailyViewSalesJob(Step dailyViewSalesStep) {
+    public Job dailyViewSalesJob(Step dailyViewSalesStep, Step dailyAdSalesStep) {
         log.info("Starting daily VideoView sales job");
-
-
-
         return new JobBuilder("dailyViewSalesJob", jobRepository)
-                .start(dailyViewSalesStep)
+                .start(viewTypeDecider())
+                .next(viewTypeDecider()).on("Video").to(dailyViewSalesStep)
+                .from(viewTypeDecider()).on("Ad").to(dailyAdSalesStep)
+                .end()
                 .build();
     }
+
 
 
 
@@ -108,34 +99,33 @@ public class DailySalesBatchConfig {
     }
 
     // 비디오에 연관된 광고에 대한 일일 조회수 정산.
-//    @Bean
-//    @JobScope
-//    public Step dailyAdSalesStep(
-//            JpaCursorItemReader<VideoViewStats> videoViewSalesJpaPagingItemReader
-//    ) {
-//        log.info("Starting daily Advertisement sales step");
-//
-//        return new StepBuilder("dailyAdSalesStep", jobRepository)
-//                .<VideoViewStats, Sales>chunk(10, transactionManager)
-//                .reader(videoViewSalesJpaPagingItemReader)
-//                .processor()
-//                .writer(dailySalesItemDBWriter)
-//                .build();
-//    }
+    @Bean
+    @JobScope
+    public Step dailyAdSalesStep(
+            JpaPagingItemReader<AdViewStats> AdViewSalesJpaItemReader
+    ) {
+        log.info("Starting daily Advertisement sales step");
 
-    // JPA PagingItemReader 정의
+        return new StepBuilder("dailyAdSalesStep", jobRepository)
+                .<AdViewStats, Sales>chunk(10, transactionManager)
+                .reader(AdViewSalesJpaItemReader)
+                .processor(dailyAdSalesProcessor)
+                .writer(dailySalesItemDBWriter)
+                .build();
+    }
+
+    // 동영상 일일 조회수 기반 조회.
     @Bean
     @StepScope
     public JpaCursorItemReader<VideoViewStats> videoViewSalesJpaItemReader(
-            @Value("#{jobParameters['dateTime']}") LocalDateTime dateTime,
-            @Value("#{jobParameters['statisticsType']}") String viewType
+            @Value("#{jobParameters['dateTime']}") LocalDateTime dateTime
     ) {
-        log.info("Starting video view stats jpa paging item reader");
+        log.info("Starting video view stats item reader");
         // 하루 전날 데이터 기준으로 잡기.
         LocalDate date = dateTime.toLocalDate().minusDays(1);
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("category", VideoViewStats.Category.DAY);
+        parameters.put("category", DayCategory.DAY);
         parameters.put("startDate", date);
         parameters.put("endDate", date);
 
@@ -144,6 +134,32 @@ public class DailySalesBatchConfig {
                 .name("videoViewStatsJpaPagingItemReader")
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("SELECT v FROM VideoViewStats v WHERE v.category = :category " +
+                        "AND v.startDate BETWEEN :startDate AND :endDate " +
+                        "ORDER BY v.startDate ASC")
+                .parameterValues(parameters)
+                .build();
+    }
+
+    @Bean
+    @StepScope
+    public JpaPagingItemReader<AdViewStats> AdViewSalesJpaItemReader(
+            @Value("#{jobParameters['dateTime']}") LocalDateTime dateTime
+    ) {
+        log.info("Starting Advertisement view stats jpa paging item reader");
+        // 하루 전날 데이터 기준으로 잡기.
+        LocalDate date = dateTime.toLocalDate().minusDays(1);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("category", DayCategory.DAY);
+        parameters.put("startDate", date);
+        parameters.put("endDate", date);
+
+
+        return new JpaPagingItemReaderBuilder<AdViewStats>()
+                .name("videoViewStatsJpaPagingItemReader")
+                .entityManagerFactory(entityManagerFactory)
+                .pageSize(10)
+                .queryString("SELECT v FROM AdViewStats v WHERE v.category = :category " +
                         "AND v.startDate BETWEEN :startDate AND :endDate " +
                         "ORDER BY v.startDate ASC")
                 .parameterValues(parameters)

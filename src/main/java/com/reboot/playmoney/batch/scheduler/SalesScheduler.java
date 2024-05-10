@@ -41,8 +41,8 @@ public class SalesScheduler {
         log.info("Job getFailureExceptions: {}", jobExecution.getFailureExceptions());
     }
 
-//    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시 실행
-    @Scheduled(cron = "*/20 * * * * ?") // 테스트용 매 20초 실행
+    @Scheduled(cron = "0 0 1 ? * MON *") // 매주 월요일 새벽 1시 실행
+//    @Scheduled(cron = "*/20 * * * * ?") // 테스트용 매 20초 실행
     public void SalesJobDailyVideoViewScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
         JobParameters parameters = createJobParameters("Video");
@@ -53,7 +53,8 @@ public class SalesScheduler {
         logJobExecution(jobExecution);
     }
 
-//    @Scheduled(cron = "0 0 1 * * MON") // 매주 월요일 새벽 1시 실행
+    @Scheduled(cron = "30 0 1 * * MON") // 매주 월요일 새벽 1시 30초 실행
+//    @Scheduled(cron = "*/30 * * * * ?") // 테스트용 매 30초 실행
     public void SalesJobDailyAdViewScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
         JobParameters parameters = createJobParameters("Ad");

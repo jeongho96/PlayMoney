@@ -72,8 +72,8 @@ public class DailyVideoSalesProcessor implements ItemProcessor<VideoViewStats, S
             viewCount = 100000;
             log.info("10만 구간 정산가 : {}", videoSaleAmount);
         }
-        log.info("정산가 : {}", videoSaleAmount  * viewCount);
         videoSaleAmount += viewCount * 1;
+        log.info("정산가 : {}", videoSaleAmount);
         return videoSaleAmount;
     }
 
