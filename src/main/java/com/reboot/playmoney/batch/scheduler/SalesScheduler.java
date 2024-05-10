@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 public class SalesScheduler {
     private final JobLauncher jobLauncher;
     private final Job dailyViewSalesJob;
-    private final Job weeklySalesJob;
-//    private final Job monthlySalesJob;
+    private final Job periodSalesJob;
 
     private JobParameters createJobParameters(String statisticsType) {
         LocalDateTime localDate = LocalDateTime.now();
@@ -70,21 +69,22 @@ public class SalesScheduler {
     public void SalesJobWeeklyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
             JobRestartException, JobInstanceAlreadyCompleteException {
         JobParameters parameters = createJobParameters("week");
-        JobExecution jobExecution = jobLauncher.run(weeklySalesJob, parameters);
+        JobExecution jobExecution = jobLauncher.run(periodSalesJob, parameters);
         while (jobExecution.isRunning()) {
             log.info("...");
         }
         logJobExecution(jobExecution);
     }
-//
-//    @Scheduled(cron = "0 0 2 1 * ?") // 매달 1일 새벽 2시 실행
-//    public void SalesJobMonthlyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
-//            JobRestartException, JobInstanceAlreadyCompleteException {
-//        JobParameters parameters = createJobParameters("month");
-//        JobExecution jobExecution = jobLauncher.run(monthlySalesJob, parameters);
-//        while (jobExecution.isRunning()) {
-//            log.info("...");
-//        }
-//        logJobExecution(jobExecution);
-//    }
+
+    @Scheduled(cron = "0 0 2 1 * ?") // 매달 1일 새벽 2시 실행
+    @Scheduled(cron = "*/30 * * * * ?") // 테스트용 매 20초 실행
+    public void SalesJobMonthlyScheduled() throws JobParametersInvalidException, JobExecutionAlreadyRunningException,
+            JobRestartException, JobInstanceAlreadyCompleteException {
+        JobParameters parameters = createJobParameters("month");
+        JobExecution jobExecution = jobLauncher.run(periodSalesJob, parameters);
+        while (jobExecution.isRunning()) {
+            log.info("...");
+        }
+        logJobExecution(jobExecution);
+    }
 }

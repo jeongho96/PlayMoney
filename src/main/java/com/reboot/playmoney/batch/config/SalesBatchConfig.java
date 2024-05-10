@@ -16,9 +16,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.JpaPagingItemReader;
-import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -47,10 +45,10 @@ public class SalesBatchConfig {
 
 
     @Bean
-    public Job weeklySalesJob(Step weeklySalesStep) {
+    public Job periodSalesJob(Step periodSalesStep) {
         log.info("Starting settlement weekly job");
-        return new JobBuilder("weeklySalesJob", jobRepository)
-                .start(weeklySalesStep)
+        return new JobBuilder("periodSalesJob", jobRepository)
+                .start(periodSalesStep)
                 .build();
     }
 
@@ -67,12 +65,12 @@ public class SalesBatchConfig {
     // 주간 통계를 계산하는 Step
     @Bean
     @JobScope
-    public Step weeklySalesStep(
+    public Step periodSalesStep(
             JpaPagingItemReader<Sales> salesJpaPagingItemReader,
             ItemProcessor<Sales, Sales> weeklySalesItemProcessor
     ) {
         log.info("Starting weekly sales step");
-        return new StepBuilder("weeklySalesStep", jobRepository)
+        return new StepBuilder("periodSalesStep", jobRepository)
                 .<Sales, Sales>chunk(10, transactionManager)
                 .reader(salesJpaPagingItemReader)
                 .processor(weeklySalesItemProcessor)
@@ -136,16 +134,28 @@ public class SalesBatchConfig {
 
     // 주간 통계를 계산하는 Processor 정의
     @Bean
-    ItemProcessor<Sales, Sales> weeklySalesItemProcessor() {
+    @StepScope
+    ItemProcessor<Sales, Sales> weeklySalesItemProcessor(
+            @Value("#{jobParameters['statisticsType']}") String dateType
+    ) {
         log.info("Starting weekly sales item processor");
         ConcurrentHashMap<Long, Sales> salesCache = new ConcurrentHashMap<>();
         return dailySales -> {
-            LocalDate startDateOfWeek = dailySales.getStartDate().with(DayOfWeek.MONDAY);
-            LocalDate endDateOfWeek = dailySales.getStartDate().with(DayOfWeek.SUNDAY);
-
+            LocalDate startDate = dailySales.getStartDate().with(DayOfWeek.MONDAY);
+            LocalDate endDate = dailySales.getStartDate().with(DayOfWeek.SUNDAY);
             Video video = dailySales.getVideo();
             Sales existingSales = salesRepository.findByVideoAndStartDateAndEndDateAndCategory
-                    (video, startDateOfWeek, endDateOfWeek, DayCategory.WEEK);
+                    (video, startDate, endDate, DayCategory.WEEK);
+
+            if(dateType.equals("month")){
+                startDate = dailySales.getStartDate().withDayOfMonth(1);
+                endDate = startDate.plusMonths(1).minusDays(1);;
+                existingSales = salesRepository.findByVideoAndStartDateAndEndDateAndCategory
+                        (video, startDate, endDate, DayCategory.MONTH);
+            }
+
+
+
 
             if(existingSales != null){
                 // 이미 존재하고, chunk 범위 밖의 값이 있다면 업데이트.
@@ -155,6 +165,11 @@ public class SalesBatchConfig {
             }
 
             final Long videoNumber = dailySales.getVideo().getVideoNumber();
+            // 람다함수에서 쓰기 위해 가공.
+            LocalDate finalStartDate = startDate;
+            LocalDate finalEndDate = endDate;
+            DayCategory dayCategory = dateType.equals("month") ? DayCategory.MONTH : DayCategory.WEEK;
+
             salesCache.compute(videoNumber, (key, sales) -> {
                 if(sales == null){
                     return Sales.builder()
@@ -162,9 +177,9 @@ public class SalesBatchConfig {
                             .video(dailySales.getVideo())
                             .videoSaleAmount(dailySales.getVideoSaleAmount())
                             .adSaleAmount(dailySales.getAdSaleAmount())
-                            .category(DayCategory.WEEK)
-                            .startDate(startDateOfWeek)
-                            .endDate(endDateOfWeek)
+                            .category(dayCategory)
+                            .startDate(finalStartDate)
+                            .endDate(finalEndDate)
                             .build();
 
                 }else{
@@ -182,46 +197,6 @@ public class SalesBatchConfig {
             return salesCache.get(videoNumber);
         };
     }
-
-
-/*
-    // 월간 통계를 계산하는 Processor 정의
-    @Bean
-    ItemProcessor<Sales, Sales> monthlyVideoViewStatsItemProcessor() {
-        log.info("Starting monthly video view stats item processor");
-        ConcurrentHashMap<Long, VideoViewStats> videoStatisticsCache = new ConcurrentHashMap<>();
-        return dailyStats -> {
-            LocalDate startDateOfMonth = dailyStats.getStartDate().withDayOfMonth(1);
-            LocalDate endDateOfMonth = startDateOfMonth.plusMonths(1).minusDays(1);;
-
-            Video video = dailyStats.getVideo();
-            VideoViewStats existingStats = videoViewStatsRepository.findByVideoAndStartDateAndEndDateAndCategory
-                    (video, startDateOfMonth, endDateOfMonth, DayCategory.MONTH);
-
-            if(existingStats != null){
-                return existingStats;
-            }
-
-            final Long videoNumber = dailyStats.getVideo().getVideoNumber();
-            videoStatisticsCache.compute(videoNumber, (key, videoViewStats) -> {
-                if(videoViewStats == null){
-                    return new VideoViewStats(
-                            dailyStats.getVideo(),
-                            startDateOfMonth,
-                            endDateOfMonth,
-                            DayCategory.MONTH,
-                            dailyStats.getViewCount()
-                    );
-
-                }else{
-                    videoViewStats.setViewCount(videoViewStats.getViewCount() + dailyStats.getViewCount());
-                    return videoViewStats;
-                }
-            });
-            return videoStatisticsCache.get(videoNumber);
-        };
-    }
-*/
 
 
 
