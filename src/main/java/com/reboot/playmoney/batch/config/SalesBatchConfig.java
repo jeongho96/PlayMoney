@@ -62,18 +62,18 @@ public class SalesBatchConfig {
 //                .build();
 //    }
 
-    // 주간 통계를 계산하는 Step
+    // 주간 ,월간 통계를 계산하는 Step
     @Bean
     @JobScope
     public Step periodSalesStep(
             JpaPagingItemReader<Sales> salesJpaPagingItemReader,
-            ItemProcessor<Sales, Sales> weeklySalesItemProcessor
+            ItemProcessor<Sales, Sales> periodSalesItemProcessor
     ) {
         log.info("Starting weekly sales step");
         return new StepBuilder("periodSalesStep", jobRepository)
                 .<Sales, Sales>chunk(10, transactionManager)
                 .reader(salesJpaPagingItemReader)
-                .processor(weeklySalesItemProcessor)
+                .processor(periodSalesItemProcessor)
                 .writer(periodSalesItemDBWriter)
                 .build();
     }
@@ -132,10 +132,10 @@ public class SalesBatchConfig {
     }
 
 
-    // 주간 통계를 계산하는 Processor 정의
+    // 주간, 월간 통계를 계산하는 Processor 정의
     @Bean
     @StepScope
-    ItemProcessor<Sales, Sales> weeklySalesItemProcessor(
+    ItemProcessor<Sales, Sales> periodSalesItemProcessor(
             @Value("#{jobParameters['statisticsType']}") String dateType
     ) {
         log.info("Starting weekly sales item processor");
