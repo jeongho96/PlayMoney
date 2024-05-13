@@ -25,7 +25,7 @@ public class WatchHistoryService {
     private final AdViewStatsRepository adViewStatsRepository;
 
 
-    @Transactional
+    /*@Transactional
     public WatchHistoryResponse playVideo(Member member, Video video, int playTime) {
 
         WatchHistory watchHistory = watchHistoryRepository.findByMember_MemberNumberAndVideo_VideoNumber(
@@ -79,7 +79,75 @@ public class WatchHistoryService {
         videoRepository.save(video);
 
         return new WatchHistoryResponse(watchHistory);
+    }*/
+
+    @Transactional
+    public WatchHistoryResponse playVideo(Member member, Video video, int playTime) {
+        WatchHistory watchHistory = watchHistoryRepository.findByMember_MemberNumberAndVideo_VideoNumber(
+                        member.getMemberNumber(), video.getVideoNumber())
+                .orElse(new WatchHistory(member, video, 0));
+        int totalPlayTime = playTime + watchHistory.getPlayTime();
+
+
+        boolean isViewCountIncreaseConditionMet = (((playTime >= 100) && (totalPlayTime < video.getDuration())) || (totalPlayTime > video.getDuration()));
+
+        if (isViewCountIncreaseConditionMet) {
+            increaseVideoViewCountAndStats(video);
+        }
+
+        // 광고 조회수 증가 로직
+        // adCount는 watchHistory에 저장되며, 광고 카운트가 중복되지 않도록 해줌.
+        int adCount = totalPlayTime / 300;
+        if (adCount > watchHistory.getAdCount()) {
+            increaseAdViewCountAndStats(watchHistory, video, adCount);
+        }
+
+        // 최근 시청 지점은 그 전 시청 시간.
+        // 누적 시청 시간(최근 시청 지점 + 이후 시청 시간)이 동영상 길이를 넘어가면 0으로 초기화.
+        updateWatchHistory(watchHistory, video, playTime);
+
+        watchHistoryRepository.save(watchHistory);
+        videoRepository.save(video);
+        return new WatchHistoryResponse(watchHistory);
     }
+
+    private void increaseVideoViewCountAndStats(Video video){
+        // 비디오에 대한 카운트는 동시성 체크를 위해서 별도로 미리 누적.
+        log.info("increaseTotalViewCount called");
+        video.increaseTotalViewCount();
+        videoRepository.save(video);
+        log.info("Video saved with new total view count:{}", video.getTotalViewCount());
+        // 일일 조회수 1씩 누적.
+        VideoViewStats videoViewStats = videoViewStatsRepository.findByVideo_VideoNumberAndStartDate(
+                        video.getVideoNumber(), LocalDate.now())
+                .orElse(new VideoViewStats(video, 0));
+        videoViewStats.increaseViewCount();
+        videoViewStatsRepository.save(videoViewStats);
+    }
+
+    private void increaseAdViewCountAndStats(WatchHistory watchHistory, Video video, int adCount){
+        Advertisement ad = video.getAdvertisement();
+        ad.increaseTotalAdViewCount();
+        watchHistory.setAdCount(adCount);
+        AdViewStats adViewStats = adViewStatsRepository.findByAd_AdNumberAndStartDate(ad.getAdNumber(), LocalDate.now())
+                .orElse(new AdViewStats(ad, 0));
+        adViewStats.increaseAdViewCount();
+        adViewStatsRepository.save(adViewStats);
+    }
+
+    private void updateWatchHistory(WatchHistory watchHistory, Video video, int playTime){
+        if (watchHistory.getPlayTime() + playTime > video.getDuration()) {
+            watchHistory.setPlayTime(0);
+        } else {
+            watchHistory.setPlayTime(watchHistory.getPlayTime() + playTime);
+        }
+    }
+
+
+
+
+
+
 
 
 

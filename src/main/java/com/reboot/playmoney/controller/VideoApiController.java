@@ -25,6 +25,8 @@ public class VideoApiController {
     private final WatchHistoryService watchHistoryService;
     private final UserService userService;
 
+
+    // 로그인 시 유저가 동영상 시청
     @PostMapping("/play")
     public ResponseEntity<WatchHistoryResponse> playVideo(Principal principal, @RequestBody PlayRequest playRequest) {
         log.info("비디오 재생 : {}", principal.getName());
@@ -34,7 +36,8 @@ public class VideoApiController {
         return ResponseEntity.ok(historyDto);
     }
 
-    @PostMapping("/play-api")
+    // 로그인하지 않고도 동영상 시청 API 요청.
+    @PostMapping("/play-video-api")
     public ResponseEntity<WatchHistoryResponse> playVideoNoLogin(@RequestBody PlayRequest playRequest) {
         log.info("비디오 재생 : {}", playRequest.getVideoId());
         Member member = userService.findById(playRequest.getMemberId());
