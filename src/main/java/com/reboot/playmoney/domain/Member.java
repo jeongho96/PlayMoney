@@ -1,10 +1,8 @@
 package com.reboot.playmoney.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Table(name = "member")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -35,18 +33,32 @@ public class Member implements UserDetails {
     private String password;
 
     @Column(name = "username", unique = true)
+    @Setter
     private String name;
 
     @Column(name = "social_provider")
     @Enumerated(EnumType.STRING)
     private SocialProvider socialProvider; // 추가된 부분
 
+    public enum SocialProvider {
+        GOOGLE,
+        KAKAO,
+        NAVER
+    }
+
+
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserType userType; // 추가된 부분
 
+    public enum UserType {
+        SELLER, USER
+    }
+
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "member")

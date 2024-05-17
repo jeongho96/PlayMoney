@@ -1,8 +1,6 @@
 package com.reboot.playmoney.config.oauth;
 
 import com.reboot.playmoney.domain.Member;
-import com.reboot.playmoney.domain.SocialProvider;
-import com.reboot.playmoney.domain.UserType;
 import com.reboot.playmoney.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -39,8 +37,8 @@ public class OAuth2UserCustomService extends DefaultOAuth2UserService {
                 .orElse(Member.builder()
                         .email(email)
                         .username(name)
-                        .socialProvider(SocialProvider.GOOGLE)
-                        .userType(UserType.SELLER)
+                        .socialProvider(Member.SocialProvider.GOOGLE)
+                        .userType(Member.UserType.SELLER)
                         .build());
 
         return userRepository.save(member);

@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @EntityListeners(AuditingEntityListener.class)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 @Entity
 @Table(name = "video")
@@ -27,6 +27,7 @@ public class Video {
     private Member member;
 
     @Column(name = "title", nullable = false)
+    @Setter
     private String title;
 
     @Column(name = "content")

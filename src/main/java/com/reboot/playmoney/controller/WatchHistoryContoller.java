@@ -30,11 +30,6 @@ public class WatchHistoryContoller {
                 .body(historys);
     }
 
-//    @GetMapping("/api/history/{id}")
-//    public ResponseEntity<WatchHistoryRequest> findHistory(@PathVariable int id) {
-//
-//
-//    }
 
 
 }

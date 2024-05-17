@@ -10,27 +10,33 @@ import java.time.LocalDate;
 
 
 @EntityListeners(AuditingEntityListener.class)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(name = "video_view_stats")
+@Table(name = "video_view_stats", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"video_number", "category", "start_date", "end_date"})
+})
 public class VideoViewStats {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "view_number")
     private Long viewNumber;
 
-    @ManyToOne
-    @JoinColumn(name = "video_number")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_number", referencedColumnName = "video_number")
     private Video video;
 
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    @Temporal(TemporalType.DATE)
-    private LocalDate createdAt;
 
+    @Column(name = "start_date" , updatable = false)
+    private LocalDate startDate;
 
+    @Column(name = "end_date" , updatable = false)
+    private LocalDate endDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum('DAY', 'WEEK', 'MONTH')", nullable = false)
+    private DayCategory category;
 
     @Column(name = "view_count")
     private int viewCount;
@@ -38,13 +44,24 @@ public class VideoViewStats {
     @Builder
     public VideoViewStats(Video video, int viewCount) {
         this.video = video;
-        this.createdAt = LocalDate.now();
+        this.startDate = LocalDate.now();
+        this.endDate = LocalDate.now();
         this.viewCount = viewCount;
+        this.category = DayCategory.DAY;
 
+    }
+
+    public VideoViewStats(Video video, LocalDate startDate, LocalDate endDate, DayCategory category, int viewCount) {
+        this.video = video;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.category = category;
+        this.viewCount = viewCount;
     }
 
     public void increaseViewCount() {
         this.viewCount++;
     }
+
 
 }

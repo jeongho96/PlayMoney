@@ -25,12 +25,15 @@ public class AdViewStats {
     @JoinColumn(name = "ad_number")
     private Advertisement ad;
 
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    @Temporal(TemporalType.DATE)
-    private LocalDate createdAt;
+    @Column(name = "start_date" , updatable = false)
+    private LocalDate startDate;
 
+    @Column(name = "end_date" , updatable = false)
+    private LocalDate endDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "enum('DAY', 'WEEK', 'MONTH')", nullable = false)
+    private DayCategory category;
 
     @Column(name = "ad_view_count")
     private int adViewCount;
@@ -38,15 +41,24 @@ public class AdViewStats {
     @Builder
     public AdViewStats(Advertisement ad, int adViewCount) {
         this.ad = ad;
-        this.createdAt = LocalDate.now();
+        this.startDate = LocalDate.now();
+        this.endDate = LocalDate.now();
         this.adViewCount = adViewCount;
+        this.category = DayCategory.DAY;
 
 
+    }
+
+    public AdViewStats(Advertisement ad, LocalDate startDate, LocalDate endDate, DayCategory category, int adViewCount) {
+        this.ad = ad;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.category = category;
+        this.adViewCount = adViewCount;
     }
 
     public void increaseAdViewCount() {
         this.adViewCount++;
     }
-
 
 }
