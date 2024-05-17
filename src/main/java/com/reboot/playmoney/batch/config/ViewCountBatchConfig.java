@@ -150,6 +150,7 @@ public class ViewCountBatchConfig {
                     (video, startDateOfWeek, endDateOfWeek, DayCategory.WEEK);
 
             if(existingStats != null){
+                existingStats.setViewCount(existingStats.getViewCount() + dailyStats.getViewCount());
                 return existingStats;
             }
 
