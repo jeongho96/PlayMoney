@@ -19,6 +19,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +46,7 @@ public class ViewCountBatchConfig {
 
 
     @Bean
-    public Job videoWeeklyStatisticsJob(Step weeklyVideoViewStatsStep) {
+    public Job videoWeeklyStatisticsJob(@Qualifier("weeklyVideoViewStatsStep") Step weeklyVideoViewStatsStep) {
         log.info("Starting video count weekly job");
 
         return new JobBuilder("videoWeeklyStatisticsJob", jobRepository)
@@ -56,7 +57,7 @@ public class ViewCountBatchConfig {
 
 
     @Bean
-    public Job videoMonthlyStatisticsJob(Step monthlyVideoViewStatsStep) {
+    public Job videoMonthlyStatisticsJob(@Qualifier("monthlyVideoViewStatsStep") Step monthlyVideoViewStatsStep) {
         log.info("Starting video count monthly job");
 
         return new JobBuilder("videoMonthlyStatisticsJob", jobRepository)

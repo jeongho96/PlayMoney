@@ -7,6 +7,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -14,12 +15,21 @@ import java.time.LocalDateTime;
 
 @Configuration
 @Slf4j
-@RequiredArgsConstructor
 public class StatisticsViewCountJobScheduler {
 
     private final JobLauncher jobLauncher;
+    @Qualifier("videoWeeklyStatisticsJob")
     private final Job videoWeeklyStatisticsJob;
+    @Qualifier("videoMonthlyStatisticsJob")
     private final Job videoMonthlyStatisticsJob;
+
+    public StatisticsViewCountJobScheduler(JobLauncher jobLauncher,
+                          @Qualifier("videoWeeklyStatisticsJob") Job videoWeeklyStatisticsJob,
+                          @Qualifier("videoMonthlyStatisticsJob") Job videoMonthlyStatisticsJob) {
+        this.jobLauncher = jobLauncher;
+        this.videoWeeklyStatisticsJob = videoWeeklyStatisticsJob;
+        this.videoMonthlyStatisticsJob = videoMonthlyStatisticsJob;
+    }
 
     private JobParameters createJobParameters(String statisticsType) {
         LocalDateTime localDate = LocalDateTime.now();

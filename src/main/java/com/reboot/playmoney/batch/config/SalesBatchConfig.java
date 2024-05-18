@@ -18,6 +18,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,22 +46,13 @@ public class SalesBatchConfig {
 
 
     @Bean
-    public Job periodSalesJob(Step periodSalesStep) {
+    public Job periodSalesJob(@Qualifier("periodSalesStep") Step periodSalesStep) {
         log.info("Starting settlement weekly job");
         return new JobBuilder("periodSalesJob", jobRepository)
                 .start(periodSalesStep)
                 .build();
     }
 
-
-//    @Bean
-//    public Job monthlySalesJob(Step monthlySalesStep) {
-//        log.info("Starting settlement monthly job");
-//
-//        return new JobBuilder("monthlySalesJob", jobRepository)
-//                .start(monthlySalesStep)
-//                .build();
-//    }
 
     // 주간 ,월간 통계를 계산하는 Step
     @Bean
@@ -79,21 +71,6 @@ public class SalesBatchConfig {
     }
 
 
-/*    // 월간 통계를 계산하는 Step
-    @Bean
-    @JobScope
-    public Step monthlySalesJob(
-            JpaPagingItemReader<VideoViewStats> videoViewStatsJpaPagingItemReader,
-            ItemProcessor<VideoViewStats, VideoViewStats> monthlyVideoViewStatsItemProcessor
-    ) {
-        log.info("Starting monthly video view stats step");
-        return new StepBuilder("monthlyVideoViewStatsStep", jobRepository)
-                .<VideoViewStats, VideoViewStats>chunk(10, transactionManager)
-                .reader(videoViewStatsJpaPagingItemReader)
-                .processor(monthlyVideoViewStatsItemProcessor)
-                .writer(videoViewStatsItemDBWriter)
-                .build();
-    }*/
 
 
     // JPA PagingItemReader 정의
