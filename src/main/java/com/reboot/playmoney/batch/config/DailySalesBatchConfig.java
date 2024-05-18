@@ -24,6 +24,7 @@ import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,7 +51,8 @@ public class DailySalesBatchConfig {
 
 
     @Bean
-    public Job dailyViewSalesJob(Step dailyViewSalesStep, Step dailyAdSalesStep) {
+    public Job dailyViewSalesJob(@Qualifier("dailyViewSalesStep") Step dailyViewSalesStep,
+                                 @Qualifier("dailyAdSalesStep") Step dailyAdSalesStep) {
         log.info("Starting daily VideoView sales job");
         return new JobBuilder("dailyViewSalesJob", jobRepository)
                 .start(viewTypeDecider())
