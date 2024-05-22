@@ -1,10 +1,7 @@
 package com.reboot.playmoney.util;
 
 import com.reboot.playmoney.domain.*;
-import com.reboot.playmoney.repository.AdvertisementRepository;
-import com.reboot.playmoney.repository.UserRepository;
-import com.reboot.playmoney.repository.VideoRepository;
-import com.reboot.playmoney.repository.VideoViewStatsRepository;
+import com.reboot.playmoney.repository.*;
 import com.reboot.playmoney.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +10,11 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class TestDataRunner implements ApplicationRunner {
 
@@ -29,9 +27,38 @@ public class TestDataRunner implements ApplicationRunner {
 
     private final UserRepository userRepository;
 
+    private final SalesRepository salesRepository;
+
 
     @Override
     public void run(ApplicationArguments args) {
+
+        // 1 ~ 100번 비디오에 대해서 (20번 단위로 멤버 번호는 1 ~ 5까지 상승한다.)
+        // 각각 1일부터 30일까지의 정산 금액을 넣는다.
+        LocalDate currentMonth = LocalDate.now().minusMonths(1);
+
+        for(Long i = 1L; i <=100L;i++){
+
+            Long memberId = (i - 1) / 20 + 1; // Calculate member id from video number
+            Member member = userRepository.findById(memberId).orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId)); // Retrieve the member
+
+            for(int j = 1; j <=30; j++){
+                Long finalI = i;
+                Video video = videoRepository.findById(i).orElseThrow(() -> new IllegalArgumentException("Video not found: " + finalI));
+                LocalDate startDate = currentMonth.withDayOfMonth(j);
+                LocalDate endDate = currentMonth.withDayOfMonth(j);
+                Sales sales = Sales.builder()
+                        .member(member) // Set the member
+                        .video(video)
+                        .startDate(startDate)
+                        .endDate(endDate)
+                        .category(DayCategory.DAY)
+                        .videoSaleAmount(1000 + (j * 150))
+                        .adSaleAmount(2000 + (j * 200))
+                        .build();
+                salesRepository.save(sales);
+            }
+        }
 
 //        // Check if test data already exists
 //        if (userRepository.count() > 0) {
