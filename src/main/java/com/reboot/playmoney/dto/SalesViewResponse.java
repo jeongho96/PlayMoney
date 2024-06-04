@@ -21,9 +21,9 @@ public class SalesViewResponse {
 
     private String videoTitle;
 
-    private float videoSaleAmount;
+    private double videoSaleAmount;
 
-    private float adSaleAmount;
+    private double adSaleAmount;
 
     private DayCategory category;
 
@@ -33,8 +33,8 @@ public class SalesViewResponse {
 
 
     @Builder
-    public SalesViewResponse(Long videoNumber, String videoTitle, float videoSaleAmount,
-                             float adSaleAmount, DayCategory category, LocalDate startDate,
+    public SalesViewResponse(Long videoNumber, String videoTitle, double videoSaleAmount,
+                             double adSaleAmount, DayCategory category, LocalDate startDate,
                              LocalDate endDate) {
         this.videoNumber = videoNumber;
         this.videoTitle = videoTitle;

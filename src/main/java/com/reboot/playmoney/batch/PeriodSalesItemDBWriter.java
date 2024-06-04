@@ -18,8 +18,6 @@ public class PeriodSalesItemDBWriter implements ItemWriter<Sales> {
     @Override
     public void write(Chunk<? extends Sales> chunk) throws Exception {
         for(Sales sales : chunk){
-            log.info("Writing Ad sales {}",sales.getAdSaleAmount());
-            log.info("Writing Video sales {}",sales.getVideoSaleAmount());
             salesRepository.save(sales);
         }
     }
