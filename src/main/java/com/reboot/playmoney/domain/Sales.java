@@ -41,7 +41,7 @@ public class Sales {
     private float adSaleAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "enum('DAY', 'WEEK', 'MONTH')", nullable = false)
+    @Column(name = "category", nullable = false)
     private DayCategory category;
 
     @Column(name = "start_date" , updatable = false)

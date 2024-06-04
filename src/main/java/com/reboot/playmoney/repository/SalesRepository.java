@@ -10,5 +10,7 @@ public interface SalesRepository extends JpaRepository<Sales, Long> {
     Sales findByVideoAndStartDateAndEndDateAndCategory
             (Video video, LocalDate startDate, LocalDate endDate, DayCategory category);
 
+    Sales findFirstByVideoAndStartDateAndEndDateAndCategory(
+            Video video, LocalDate startDate, LocalDate endDate, DayCategory category);
     List<Sales> findByMember(Member member);
 }
